@@ -1,0 +1,15 @@
+# Shared by every may-journal repo. may-journal/.github holds the source copy,
+# and org-settings opens a PR in each repo whose copy differs. Edit it there.
+# Org required workflows skip issue events, so each repo carries this caller.
+# It reopens an issue closed with unchecked checklist items.
+name: Close check
+on:
+  issues:
+    types: [closed]
+jobs:
+  close-check:
+    uses: may-journal/fitness-runner/.github/workflows/close-check-reusable.yml@v1
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read

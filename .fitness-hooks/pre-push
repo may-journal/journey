@@ -1,0 +1,3 @@
+#!/bin/sh
+# may-journal/.github holds the source copy; org-settings syncs it by PR.
+exec "$HOME/.local/share/may-journal/fitness/fitness-install" --version latest -- hook pre-push

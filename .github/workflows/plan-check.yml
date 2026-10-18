@@ -1,0 +1,14 @@
+# Shared by every may-journal repo. may-journal/.github holds the source copy,
+# and org-settings opens a PR in each repo whose copy differs. Edit it there.
+# Org required workflows skip issue events, so each repo carries this caller.
+name: Plan check
+on:
+  issues:
+    types: [opened, edited, reopened, labeled]
+  workflow_dispatch:
+jobs:
+  plan-check:
+    uses: may-journal/fitness-runner/.github/workflows/plan-check-reusable.yml@v1
+    permissions:
+      contents: read
+      issues: write
