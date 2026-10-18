@@ -1,10 +1,9 @@
 ---
-relatedConfigurations: ['../../.fitnessrc.json']
+relatedConfigurations: ['../workflows/issue-check.yml']
 name: Idea
 about: An idea worth keeping, before it is planned.
 title: "[Idea] Short name of the idea"
 labels: Idea
-assignees: jasonvanderslice
 
 ---
 

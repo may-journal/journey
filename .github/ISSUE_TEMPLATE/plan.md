@@ -1,5 +1,5 @@
 ---
-relatedConfigurations: ['../../.fitnessrc.json']
+relatedConfigurations: ['../workflows/issue-check.yml']
 name: Plan
 about: A plan for a piece of work, with steps and acceptance criteria.
 title: "[Plan] Short name of the work"
