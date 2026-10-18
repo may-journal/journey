@@ -1,0 +1,19 @@
+# Shared by every may-journal repo. may-journal/.github holds the source copy,
+# and org-settings opens a PR in each repo whose copy differs. Edit it there.
+# Org required workflows skip comment events, so each repo carries this caller.
+# It replies once to a failing comment from anyone but fitness's known bots,
+# and turns that reply into a passing note once the comment is fixed.
+name: Comment check
+on:
+  issue_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
+  workflow_dispatch:
+jobs:
+  comment-check:
+    uses: may-journal/fitness-runner/.github/workflows/comment-check-reusable.yml@v1
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write

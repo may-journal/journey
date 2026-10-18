@@ -1,5 +1,5 @@
 ---
-relatedConfigurations: ['workflows/plan-check.yml', 'workflows/close-check.yml']
+relatedConfigurations: ['workflows/plan-check.yml', 'workflows/close-check.yml', 'workflows/comment-check.yml']
 ---
 
 # Fitness setup
@@ -25,6 +25,6 @@ git config --local core.hooksPath .fitness-hooks
 
 ## Workflow ownership
 
-The required Fitness suite runs at the org level. The sync distributes repo-level plan-check and close-check callers, local hooks, and this setup note through reviewable PRs. Installation and hook activation remain local setup steps.
+The required Fitness suite runs at the org level. The sync distributes repo-level plan-check, close-check, and comment-check callers, local hooks, and this setup note through reviewable PRs. Installation and hook activation remain local setup steps.
 
 For common behavior, see Fitness's [CI guide](https://github.com/may-journal/fitness-runner/blob/main/docs/ci.md) and [cache and version policy](https://github.com/may-journal/fitness-runner/blob/main/docs/ci.md#cache-and-versions).
