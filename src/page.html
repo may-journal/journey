@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>May Journal Journey</title>
+<meta name="description" content="Every may-journal repo's requirements, reduced to key terms and drawn as one Given → When → Then journey.">
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #f6f6f4;
+  --text: #1c1c1a;
+  --muted: #66665f;
+  --line: #deded8;
+  --accent: #2f5fd0;
+  --error: #b42318;
+  --given: #e8f0ff;
+  --when: #fff2d9;
+  --then: #e6f5ea;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141413;
+    --surface: #1e1e1c;
+    --text: #ecece8;
+    --muted: #a3a39b;
+    --line: #34342f;
+    --accent: #8fb0ff;
+    --error: #ff8a7a;
+    --given: #1f2b45;
+    --when: #3d311a;
+    --then: #1d3626;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 17px; margin: 0 0 8px; }
+p { margin: 0 0 8px; }
+a { color: var(--accent); }
+.muted { color: var(--muted); font-size: 13px; }
+.error { color: var(--error); }
+.actions { display: flex; gap: 8px; }
+button, select, input {
+  font: inherit;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--muted); }
+input[type="range"] { padding: 0; border: 0; background: none; width: 140px; vertical-align: middle; }
+input[type="number"] { width: 64px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+#token-form { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+#token-input { flex: 1 1 260px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 12px 0; }
+.controls label { white-space: nowrap; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.swatch { display: inline-block; width: 14px; height: 10px; border: 1px solid var(--muted); vertical-align: middle; margin-right: 4px; }
+.swatch.given { background: var(--given); border-radius: 5px; }
+.swatch.when { background: var(--when); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+.swatch.then { background: var(--then); }
+#diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; padding: 8px; min-height: 120px; -webkit-overflow-scrolling: touch; }
+#diagram svg { display: block; max-width: none; height: auto; }
+#diagram .node { cursor: pointer; }
+#diagram .node.given rect, #diagram .node.given path, #diagram .node.given polygon { fill: var(--given); }
+#diagram .node.when rect, #diagram .node.when path, #diagram .node.when polygon { fill: var(--when); }
+#diagram .node.then rect, #diagram .node.then path, #diagram .node.then polygon { fill: var(--then); }
+#diagram .node.selected rect, #diagram .node.selected path, #diagram .node.selected polygon { stroke: var(--accent); stroke-width: 3px; }
+#errors .card { border-color: var(--error); }
+#details ul { list-style: none; padding: 0; margin: 0; }
+#details li { border-top: 1px solid var(--line); padding: 10px 0; }
+#details dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 6px 0; }
+#details dt { color: var(--muted); font-size: 13px; }
+#details dd { margin: 0; overflow-wrap: anywhere; }
+.row { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.approx { border-bottom: 1px dotted var(--muted); cursor: help; }
+body [hidden] { display: none; }
+</style>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js" integrity="sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2" crossorigin="anonymous"></script>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Journey</h1>
+      <p class="muted">Every may-journal requirement, reduced to key terms: Given → When → Then.</p>
+    </div>
+    <div class="actions" id="actions" hidden>
+      <button type="button" id="refresh">Refresh</button>
+      <button type="button" id="forget">Forget token</button>
+    </div>
+  </header>
+
+  <section id="token-screen" class="card" hidden>
+    <h2>Paste a GitHub token</h2>
+    <p>Make a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained token</a> with the may-journal org as owner, all repositories, and read-only Contents access. This page keeps it in this browser's local storage only and sends it only to api.github.com.</p>
+    <form id="token-form">
+      <input id="token-input" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" aria-label="GitHub token" required>
+      <button type="submit">Save and load</button>
+    </form>
+    <p id="token-error" class="error" role="alert"></p>
+  </section>
+
+  <section id="app" hidden>
+    <p id="status" class="muted" aria-live="polite"></p>
+    <p id="dates-status" class="muted" aria-live="polite"></p>
+    <div id="errors"></div>
+    <div class="controls">
+      <label>Nodes <input type="range" id="cap" min="10" max="150" step="5" value="40"> <output id="cap-out">40</output></label>
+      <label>Min count <input type="range" id="min" min="1" max="50" value="3"> <output id="min-out">3</output></label>
+      <label>Changed in last <input type="number" id="recent" min="0" max="3650" value="0"> days</label>
+    </div>
+    <div class="legend">
+      <span><span class="swatch given"></span>Given (actor or state)</span>
+      <span><span class="swatch when"></span>When (action)</span>
+      <span><span class="swatch then"></span>Then (outcome)</span>
+      <span>• Most acceptances changed in the window</span>
+      <span>Edge labels count acceptances.</span>
+    </div>
+    <div id="diagram" role="img" aria-label="Journey graph"></div>
+    <p id="graph-note" class="muted"></p>
+    <section id="details" class="card" hidden>
+      <div class="row">
+        <h2 id="details-title">Acceptances</h2>
+        <label class="muted">Sort <select id="sort">
+          <option value="doc">Doc order</option>
+          <option value="modified">Newest modified</option>
+        </select></label>
+      </div>
+      <ul id="details-list"></ul>
+    </section>
+  </section>
+</main>
+
+<script type="module" id="journey-core">
+/* core */
+globalThis.journey = { buildGraph, fetchDocDates, fetchJourney, flatten, makeClient, mapLimit, pickDates, recentKeys, selectGraph, toMermaid };
+</script>
+<script type="module">
+const {
+  buildGraph, fetchDocDates, fetchJourney, flatten, makeClient, mapLimit, pickDates, recentKeys, selectGraph, toMermaid,
+} = globalThis.journey;
+
+const KEY = 'journey.token';
+const $ = (id) => document.getElementById(id);
+const store = {
+  get() { try { return localStorage.getItem(KEY); } catch { return null; } },
+  set(value) { try { localStorage.setItem(KEY, value); } catch { /* storage blocked: keep it for this visit */ } },
+  clear() { try { localStorage.removeItem(KEY); } catch { /* nothing stored */ } },
+};
+const ADDED_TIP = 'The oldest commit whose version of this file holds this id. Renames are not followed.';
+const APPROX_TIP = 'Approximate: the history walk did not find this id (too deep or rate-limited), so this is the file\'s first commit. Renames are not followed.';
+const dark = matchMedia('(prefers-color-scheme: dark)');
+
+let token = store.get();
+let state = { load: 0, acceptances: [], graph: null, dates: new Map(), selected: null, rate: null };
+let renderSeq = 0;
+
+function show(screen) {
+  $('token-screen').hidden = screen !== 'token';
+  $('app').hidden = screen !== 'app';
+  $('actions').hidden = screen !== 'app';
+}
+
+function rateText() {
+  const r = state.rate;
+  if (!r) return '';
+  return ` · API ${r.remaining}/${r.limit} left, resets ${new Date(r.reset * 1000).toLocaleTimeString()}`;
+}
+
+function onRate(rate) {
+  if (rate.resource === 'core') state.rate = rate;
+}
+
+function fail(error) {
+  if (error.kind === 'token') {
+    store.clear();
+    token = null;
+    $('token-error').textContent = `${error.message} Paste another.`;
+    show('token');
+    return;
+  }
+  $('status').innerHTML = '';
+  const p = document.createElement('span');
+  p.className = 'error';
+  p.textContent = error.kind === 'rate' ? error.message : `Loading failed: ${error.message}`;
+  $('status').append(p);
+}
+
+async function load() {
+  const run = ++state.load;
+  state = { ...state, acceptances: [], graph: null, dates: new Map(), selected: null };
+  $('details').hidden = true;
+  $('errors').replaceChildren();
+  $('dates-status').textContent = '';
+  $('status').textContent = 'Loading every repo\'s requirements…';
+  let results;
+  try {
+    results = await fetchJourney({ client: makeClient({ fetchImpl: fetch, onRate, token }), limit: 6 });
+  } catch (error) {
+    if (run === state.load) fail(error);
+    return;
+  }
+  if (run !== state.load) return;
+  for (const r of results.filter((x) => x.error)) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.textContent = `${r.repo}: ${r.error} Its requirements are left out.`;
+    $('errors').append(card);
+  }
+  state.results = results;
+  state.acceptances = flatten(results);
+  state.graph = buildGraph(state.acceptances);
+  const withDocs = results.filter((r) => r.docs.length).length;
+  $('status').textContent = `${withDocs} of ${results.length} repos have requirements · ${state.acceptances.length} acceptances · ${state.graph.nodes.size} terms · ${state.graph.edges.size} links${rateText()}`;
+  await draw();
+  loadDates(run);
+}
+
+// Loads added and modified dates after the graph is drawn, doc by doc.
+async function loadDates(run) {
+  const client = makeClient({ fetchImpl: fetch, onRate, token });
+  const docs = state.results.flatMap((r) => r.docs.filter((d) => d.acceptances.length).map((d) => ({ r, d })));
+  let done = 0;
+  let failed = 0;
+  let stopped = null;
+  const progress = () => {
+    $('dates-status').textContent = stopped
+      ? `Dates stopped after ${done} of ${docs.length} docs: ${stopped}`
+      : `Dates: ${done} of ${docs.length} docs${failed ? `, ${failed} failed` : ''}${rateText()}`;
+  };
+  progress();
+  await mapLimit(docs, 4, async ({ r, d }) => {
+    if (stopped || run !== state.load) return;
+    try {
+      const found = await fetchDocDates({
+        branch: r.branch, client, ids: d.acceptances.map((a) => a.id), maxVersions: 25, path: d.path, repo: r.repo,
+      });
+      for (const a of d.acceptances) state.dates.set(`${r.repo}/${a.id}`, pickDates(a, found));
+    } catch (error) {
+      if (error.kind === 'rate' || error.kind === 'token') stopped = error.message;
+      else failed += 1;
+    }
+    if (run !== state.load) return;
+    done += 1;
+    progress();
+    if (state.selected) showDetails(state.selected);
+  });
+  if (run !== state.load) return;
+  if (!stopped) $('dates-status').textContent = `Dates loaded for ${state.dates.size} acceptances${failed ? `; ${failed} docs failed` : ''}${rateText()}`;
+  if (Number($('recent').value) > 0) draw();
+}
+
+function highlighted() {
+  const days = Number($('recent').value);
+  if (!(days > 0) || !state.dates.size) return new Set();
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const modified = state.acceptances.map((a) => state.dates.get(`${a.repo}/${a.id}`)?.modified?.date);
+  return recentKeys(state.graph, modified, since);
+}
+
+async function draw() {
+  if (!state.graph || !window.mermaid) return;
+  const cap = Number($('cap').value);
+  const min = Number($('min').value);
+  const picked = selectGraph(state.graph, { cap, min });
+  const text = toMermaid(picked, highlighted());
+  $('graph-note').textContent = `Drawing ${picked.nodes.length} terms and ${picked.edges.length} links with at least ${min} acceptances each. Tap a term to see its acceptances.`;
+  if (!picked.nodes.length) {
+    $('diagram').textContent = 'No term has that many acceptances. Lower the minimum.';
+    return;
+  }
+  window.mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'strict',
+    theme: dark.matches ? 'dark' : 'neutral',
+    flowchart: { useMaxWidth: false },
+    maxEdges: 5000,
+  });
+  const seq = ++renderSeq;
+  const { svg } = await window.mermaid.render(`journey-svg-${seq}`, text);
+  if (seq !== renderSeq) return;
+  $('diagram').innerHTML = svg;
+  for (const el of $('diagram').querySelectorAll('g.node')) {
+    const key = el.dataset.id || (el.id.match(/flowchart-(.+)-\d+$/) || [])[1];
+    if (!state.graph.nodes.has(key)) continue;
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+    el.classList.toggle('selected', key === state.selected);
+    const open = () => {
+      for (const s of $('diagram').querySelectorAll('g.node.selected')) s.classList.remove('selected');
+      el.classList.add('selected');
+      showDetails(key);
+      $('details').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    el.addEventListener('click', open);
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  }
+}
+
+function link(href, text, title) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.textContent = text;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  if (title) a.title = title;
+  return a;
+}
+
+function day(iso) {
+  return iso ? iso.slice(0, 10) : '';
+}
+
+function showDetails(key) {
+  state.selected = key;
+  const node = state.graph.nodes.get(key);
+  const label = node.kind[0].toUpperCase() + node.kind.slice(1);
+  $('details-title').textContent = `${label} “${node.term}” · ${node.count} acceptances`;
+  let items = node.acceptances.map((i) => state.acceptances[i]);
+  if ($('sort').value === 'modified') {
+    const when = (a) => state.dates.get(`${a.repo}/${a.id}`)?.modified?.date || '';
+    items = [...items].sort((a, b) => when(b).localeCompare(when(a)));
+  }
+  const list = items.map((a) => {
+    const li = document.createElement('li');
+    const head = document.createElement('div');
+    head.className = 'row';
+    head.append(link(a.url, `${a.repo} · ${a.id}`));
+    const doc = document.createElement('span');
+    doc.className = 'muted';
+    doc.textContent = a.doc;
+    head.append(doc);
+    const dl = document.createElement('dl');
+    for (const [term, lines] of [['Given', a.givens], ['When', a.whens], ['Then', a.thens]]) {
+      for (const text of lines) {
+        const dt = document.createElement('dt');
+        dt.textContent = term;
+        const dd = document.createElement('dd');
+        dd.textContent = text;
+        dl.append(dt, dd);
+      }
+    }
+    const foot = document.createElement('div');
+    foot.className = 'row muted';
+    const dates = state.dates.get(`${a.repo}/${a.id}`);
+    if (dates?.added) {
+      const added = document.createElement('span');
+      added.append(dates.added.approx ? 'Added ~' : 'Added ');
+      const anchor = link(dates.added.url, day(dates.added.date), dates.added.approx ? APPROX_TIP : ADDED_TIP);
+      if (dates.added.approx) anchor.className = 'approx';
+      added.append(anchor);
+      foot.append(added);
+    }
+    if (dates?.modified) {
+      const modified = document.createElement('span');
+      modified.append('Modified ', link(dates.modified.url, day(dates.modified.date), 'Newest commit touching this acceptance\'s lines (blame).'));
+      foot.append(modified);
+    }
+    if (!dates) foot.append('Dates loading…');
+    if (a.source) foot.append(link(a.source, 'Source'));
+    li.append(head, dl, foot);
+    return li;
+  });
+  $('details-list').replaceChildren(...list);
+  $('details').hidden = false;
+}
+
+$('token-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  token = $('token-input').value.trim();
+  $('token-input').value = '';
+  $('token-error').textContent = '';
+  store.set(token);
+  show('app');
+  load();
+});
+$('forget').addEventListener('click', () => {
+  store.clear();
+  token = null;
+  state.load += 1;
+  $('diagram').replaceChildren();
+  show('token');
+});
+$('refresh').addEventListener('click', load);
+for (const id of ['cap', 'min']) {
+  $(id).addEventListener('input', () => { $(`${id}-out`).textContent = $(id).value; });
+  $(id).addEventListener('change', draw);
+}
+$('recent').addEventListener('change', draw);
+$('sort').addEventListener('change', () => state.selected && showDetails(state.selected));
+dark.addEventListener('change', draw);
+
+if (token) {
+  show('app');
+  load();
+} else {
+  show('token');
+}
+</script>
+</body>
+</html>

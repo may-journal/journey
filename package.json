@@ -1,0 +1,22 @@
+{
+  "name": "journey",
+  "version": "0.1.0",
+  "private": true,
+  "description": "One live user journey drawn from every may-journal repo's requirements.",
+  "type": "module",
+  "bin": {
+    "journey-build": "scripts/build.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts dist",
+    "test": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@vitest/coverage-v8": "5.0.5",
+    "vitest": "5.0.5"
+  },
+  "engines": {
+    "node": ">=26"
+  }
+}
