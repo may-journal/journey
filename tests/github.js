@@ -8,7 +8,7 @@ export const RESET = 1800000000;
 
 /** @typedef {{ body?: unknown, gate?: Promise<void>, headers?: Record<string, string>, status?: number }} Route */
 
-const REMAINING = 'x-ratelimit-remaining';
+export const REMAINING = 'x-ratelimit-remaining';
 
 const RATE = {
   'x-ratelimit-limit': '5000',

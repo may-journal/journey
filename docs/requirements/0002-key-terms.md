@@ -21,7 +21,7 @@ Source: `src/journey.js:114`
 - 0002.1
     - Given Viewer has a requirement doc
         - When the page reads it
-            - Then each acceptance keeps its ID, line, the doc's Source and its Given, When and Then text
+            - Then each acceptance keeps its ID, line, Source and clause texts, and a doc without a heading goes by its path
 - 0002.2
     - Given Viewer has a clause joined by commas or "and"
         - When the page splits it
@@ -29,7 +29,7 @@ Source: `src/journey.js:114`
 - 0002.3
     - Given Viewer has a Given or Then clause
         - When the page reduces it
-            - Then its key term is the first word left after filler words and pronouns
+            - Then its key term is the first word left after filler and pronouns, kept as not-<term> after a "not"
 - 0002.4
     - Given Viewer has a When clause
         - When the page reduces it

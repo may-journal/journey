@@ -97,7 +97,10 @@ const FILLER = new Set([
 export function words(part) {
   return part
     .toLowerCase()
-    .replace(/'s\b/g, '')
+    .replace(/[’']/g, "'")
+    .replace(/\b(?:won|can)'t\b/g, (word) => `${word[0] === 'w' ? 'will' : 'can'} not`)
+    .replace(/n't\b/g, ' not')
+    .replace(/'\w+\b/g, '')
     .replace(/[^a-z0-9-]+/g, ' ')
     .split(' ')
     .map((word) => word.replace(/^-+|-+$/g, ''))
@@ -107,6 +110,7 @@ export function words(part) {
 /**
  * Reduces one clause part to its key term. Given and Then keep the first word
  * left after filler and pronouns; When skips a leading "the noun" to its verb.
+ * A "not" before the term keeps the meaning, as not-<term>.
  * @param {string} part A clause part.
  * @param {Kind} kind The clause kind.
  * @returns {string | null} The key term, or null when only filler is left.
@@ -114,8 +118,9 @@ export function words(part) {
 export function keyTerm(part, kind) {
   const all = words(part);
   const kept = all.filter((word) => !FILLER.has(word));
-  if (kind === WHEN && DETERMINERS.has(all[0]) && kept.length > 1) return kept[1];
-  return kept[0] || null;
+  const term = kind === WHEN && DETERMINERS.has(all[0]) && kept.length > 1 ? kept[1] : kept[0];
+  if (!term) return null;
+  return all.slice(0, all.indexOf(term)).includes('not') ? `not-${term}` : term;
 }
 
 /**
@@ -280,25 +285,37 @@ export function decodeBase64(content) {
 }
 
 /**
- * Runs `fn` over `items` with at most `limit` calls in flight, keeping order.
- * @template T, R
- * @param {T[]} items Inputs.
+ * A gate that lets at most `limit` calls run at once, however they nest.
+ * After `halt(error)`, waiting calls reject with that error and never run.
  * @param {number} limit Calls in flight.
- * @param {(item: T) => Promise<R>} fn The call.
- * @returns {Promise<R[]>} Results in input order.
  */
-export async function mapLimit(items, limit, fn) {
-  /** @type {R[]} */
-  const results = new Array(items.length);
-  let next = 0;
-  const worker = async () => {
-    while (next < items.length) {
-      const i = next++;
-      results[i] = await fn(items[i]);
+export function gate(limit) {
+  let running = 0;
+  /** @type {(() => void)[]} */
+  const waiting = [];
+  /** @type {unknown} */
+  let halted = null;
+  /**
+   * Runs `fn` once a slot is free.
+   * @template R
+   * @param {() => Promise<R>} fn The call.
+   * @returns {Promise<R>} Its result.
+   */
+  const run = async (fn) => {
+    if (running >= limit) await new Promise((resolve) => waiting.push(() => resolve(undefined)));
+    if (halted) throw halted;
+    running += 1;
+    try {
+      return await fn();
+    } finally {
+      running -= 1;
+      waiting.shift()?.();
     }
   };
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return results;
+  const halt = (/** @type {unknown} */ error) => {
+    halted = error;
+  };
+  return { halt, run };
 }
 
 /** @typedef {{ limit: number, remaining: number, reset: number }} Rate */
@@ -344,25 +361,34 @@ export async function fetchJourney({ get, limit }) {
     if (batch.length < 100) break;
   }
   repos.sort((a, b) => a.name.localeCompare(b.name));
-  return mapLimit(repos, limit, async (repo) => {
+  const { halt, run } = gate(limit);
+  const limited = (/** @type {string} */ url, allow404 = false) => run(() => get(url, allow404));
+  /** @type {(repo: typeof repos[number]) => Promise<RepoResult>} */
+  const load = async (repo) => {
     try {
-      const listing = await get(`${API}/repos/${ORG}/${repo.name}/contents/docs/requirements`, true);
+      const listing = await limited(`${API}/repos/${ORG}/${repo.name}/contents/docs/requirements`, true);
       if (!listing) return { docs: [], repo: repo.name };
       /** @type {{ html_url: string, name: string, path: string, type: string, url: string }[]} */
       const files = listing.filter(
         (/** @type {{ name: string, type: string }} */ f) => f.type === 'file' && f.name.endsWith('.md')
       );
-      const docs = await mapLimit(files, limit, async (file) => {
-        const body = await get(file.url);
-        return { path: file.path, url: file.html_url, ...parseDoc(decodeBase64(body.content)) };
-      });
+      const docs = await Promise.all(
+        files.map(async (file) => {
+          const body = await limited(file.url);
+          return { path: file.path, url: file.html_url, ...parseDoc(decodeBase64(body.content)) };
+        })
+      );
       return { branch: repo.default_branch, docs, repo: repo.name };
     } catch (error) {
       const failure = /** @type {FetchError} */ (error);
-      if (failure.kind === ERROR.TOKEN || failure.kind === ERROR.RATE) throw failure;
+      if (failure.kind === ERROR.TOKEN || failure.kind === ERROR.RATE) {
+        halt(failure);
+        throw failure;
+      }
       return { docs: [], error: failure.message, repo: repo.name };
     }
-  });
+  };
+  return Promise.all(repos.map(load));
 }
 
 /**
@@ -396,7 +422,7 @@ export function flatten(results) {
       for (const acceptance of doc.acceptances) {
         out.push({
           ...acceptance,
-          doc: `${doc.id} ${doc.name}`,
+          doc: doc.id ? `${doc.id} ${doc.name}` : doc.path,
           repo: result.repo,
           source,
           test: testSearch(result.repo, acceptance.id),

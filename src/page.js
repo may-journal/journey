@@ -66,6 +66,9 @@ export function start({ fetchImpl, mermaid, window }) {
     localStorage.removeItem(TOKEN_KEY);
     token = null;
     run += 1;
+    renders += 1;
+    acceptances = [];
+    graph = buildGraph([]);
     ui.tokenError.textContent = message;
     ui.diagram.replaceChildren();
     show(true);
@@ -77,8 +80,12 @@ export function start({ fetchImpl, mermaid, window }) {
     ui.details.hidden = true;
     ui.errors.replaceChildren();
     ui.status.textContent = "Loading every repo's requirements…";
-    const rate = { limit: 0, remaining: 0, reset: 0 };
-    const get = makeClient({ fetchImpl, onRate: (r) => Object.assign(rate, r), token: String(token) });
+    // Answers finish out of order, so the status keeps the lowest count left.
+    const rate = { limit: 0, remaining: Number.POSITIVE_INFINITY, reset: 0 };
+    const onRate = (/** @type {import('./journey.js').Rate} */ r) => {
+      if (r.remaining <= rate.remaining) Object.assign(rate, r);
+    };
+    const get = makeClient({ fetchImpl, onRate, token: String(token) });
     /** @type {import('./journey.js').RepoResult[]} */
     let results;
     try {
@@ -112,6 +119,11 @@ export function start({ fetchImpl, mermaid, window }) {
 
   const draw = async () => {
     const current = graph;
+    if (!current.nodes.size) {
+      ui.graphNote.textContent = '';
+      ui.diagram.replaceChildren();
+      return;
+    }
     const min = Number(ui.min.value);
     const picked = selectGraph(current, { cap: Number(ui.cap.value), min });
     ui.graphNote.textContent = `${current.nodes.size} terms. Drawing the ${picked.nodes.length} largest with at least ${min} acceptances. Tap a term to list them.`;
@@ -119,16 +131,27 @@ export function start({ fetchImpl, mermaid, window }) {
       ui.diagram.textContent = 'No term has that many acceptances. Lower the minimum.';
       return;
     }
-    mermaid.initialize({
-      flowchart: { useMaxWidth: false },
-      maxEdges: 5000,
-      securityLevel: 'strict',
-      startOnLoad: false,
-      theme: dark.matches ? THEME.dark : THEME.light,
-    });
     const mine = ++renders;
-    const { svg } = await mermaid.render(`journey-svg-${mine}`, toMermaid(picked));
+    let svg = '';
+    let failure = '';
+    try {
+      mermaid.initialize({
+        flowchart: { useMaxWidth: false },
+        maxEdges: 5000,
+        maxTextSize: 1000000,
+        securityLevel: 'strict',
+        startOnLoad: false,
+        theme: dark.matches ? THEME.dark : THEME.light,
+      });
+      ({ svg } = await mermaid.render(`journey-svg-${mine}`, toMermaid(picked)));
+    } catch (error) {
+      failure = `Mermaid could not draw the graph. ${error}`;
+    }
     if (mine !== renders) return;
+    if (failure) {
+      ui.diagram.textContent = failure;
+      return;
+    }
     ui.diagram.innerHTML = svg;
     for (const el of ui.diagram.querySelectorAll(NODES)) {
       const key = el.id.replace(NODE_ID, '$1');

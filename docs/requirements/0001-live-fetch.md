@@ -25,11 +25,11 @@ Source: `src/journey.js:338`
 - 0001.2
     - Given Viewer pastes a token
         - When they save it
-            - Then it stays only in localStorage and every repo's docs load with it, page by page
+            - Then it stays only in localStorage, every repo's docs load with it, and the status shows the fewest calls left
 - 0001.3
     - Given Viewer has a token GitHub rejects
         - When the page loads
-            - Then it forgets the token and asks for another
+            - Then it forgets the token, stops fetching and asks for another
 - 0001.4
     - Given Viewer has used up GitHub's rate limit
         - When the page loads
@@ -45,4 +45,4 @@ Source: `src/journey.js:338`
 - 0001.7
     - Given Viewer has a saved token
         - When they choose Forget token
-            - Then the token is removed and the page asks for one
+            - Then the token and its graph are removed and the page asks for one

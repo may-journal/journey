@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
-import { listing, ORG_REPOS, RATE_LIMITED, RESET, repo } from './github.js';
-import { drawnNodes, ORG, openPage, TOKEN, TOOLS } from './page.js';
+import { listing, ORG_REPOS, RATE_LIMITED, REMAINING, RESET, repo } from './github.js';
+import { APP, drawnNodes, ORG, openPage, TOKEN, TOOLS } from './page.js';
 
 const RATE_MESSAGE = "GitHub's rate limit is used up. It resets at ";
 
@@ -17,7 +17,12 @@ test('0001.1 with no token the page asks for one and fetches nothing', () => {
 test('0001.2 a pasted token stays only in localStorage and loads every repo page by page', async () => {
   const first = Array.from({ length: 100 }, (_, i) => repo(`bare-${String(i).padStart(3, '0')}`));
   const page = openPage({
-    routes: { ...ORG, [`${ORG_REPOS}1`]: { body: first }, [`${ORG_REPOS}2`]: ORG[`${ORG_REPOS}1`] },
+    routes: {
+      ...ORG,
+      [`${ORG_REPOS}1`]: { body: first },
+      [`${ORG_REPOS}2`]: ORG[`${ORG_REPOS}1`],
+      [listing(APP)]: { ...ORG[listing(APP)], headers: { [REMAINING]: '4990' } },
+    },
     token: null,
   });
   page.ui.tokenInput.value = `  ${TOKEN} `;
@@ -30,7 +35,7 @@ test('0001.2 a pasted token stays only in localStorage and loads every repo page
   expect(page.github.calls.map((c) => c.url)).not.toContain(listing('old'));
   const reset = new Date(RESET * 1000).toLocaleTimeString();
   expect(page.ui.status.textContent).toBe(
-    `2 of 103 repos have requirements · 3 acceptances · 4999 of 5000 API calls left until ${reset}`
+    `2 of 103 repos have requirements · 3 acceptances · 4990 of 5000 API calls left until ${reset}`
   );
 });
 
@@ -39,6 +44,12 @@ test('0001.3 a token GitHub rejects is forgotten and the page asks for another',
   await vi.waitFor(() => expect(page.ui.tokenScreen.hidden).toBe(false));
   expect(page.ui.tokenError.textContent).toBe('GitHub rejected the token. It may be wrong or expired. Paste another.');
   expect(page.saved()).toBeNull();
+  const many = Array.from({ length: 20 }, (_, i) => repo(`r${String(i).padStart(2, '0')}`));
+  const halted = openPage({
+    routes: { [`${ORG_REPOS}1`]: { body: many }, [listing('r00')]: { body: {}, status: 401 } },
+  });
+  await vi.waitFor(() => expect(halted.ui.tokenScreen.hidden).toBe(false));
+  expect(halted.github.calls.length).toBe(8);
 });
 
 test('0001.4 a used-up rate limit says when it resets', async () => {
@@ -73,4 +84,7 @@ test('0001.7 Forget token removes it and asks for one again', async () => {
   expect(page.ui.tokenScreen.hidden).toBe(false);
   expect(page.ui.tokenError.textContent).toBe('');
   expect(page.ui.diagram.childElementCount).toBe(0);
+  page.setDark(true);
+  expect(page.ui.diagram.textContent).toBe('');
+  expect(page.ui.graphNote.textContent).toBe('');
 });

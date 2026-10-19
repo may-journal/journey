@@ -116,3 +116,6 @@ try {
   await rm(profile, { force: true, recursive: true });
 }
 console.log(JSON.stringify(report, null, 2));
+// A page that never drew, listed nothing on a tap or cannot scroll fails the run.
+const passed = report.tokenScreen && report.graphDrawn && report.details && report.phoneScrolls;
+process.exit(passed ? 0 : 1);

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { KINDS, keyTerm, parseDoc, splitClause, termsOf } from '../src/journey.js';
+import { flatten, KINDS, keyTerm, parseDoc, splitClause, termsOf } from '../src/journey.js';
 import { EDIT, SYNC } from './page.js';
 
 const [GIVEN, WHEN, THEN] = KINDS;
@@ -23,6 +23,8 @@ test('0002.1 each acceptance keeps its ID, line, Source and clause texts', () =>
     name: null,
     source: null,
   });
+  const bare = { ...parseDoc('- 0001.1\n'), path: 'docs/requirements/README.md', url: 'u' };
+  expect(flatten([{ branch: 'main', docs: [bare], repo: 'x' }])[0].doc).toBe(bare.path);
 });
 
 test('0002.2 compound clauses split on commas and "and", and code spans drop out', () => {
@@ -35,6 +37,11 @@ test('0002.3 Given and Then keep the first word left after filler words and pron
   expect(keyTerm('I have two --dry-run flags', GIVEN)).toBe('dry-run');
   expect(keyTerm('it is saved locally', THEN)).toBe('saved');
   expect(keyTerm('it is the one', THEN)).toBeNull();
+  expect(keyTerm("it doesn't crash", THEN)).toBe('not-crash');
+  expect(keyTerm('it is not saved', THEN)).toBe('not-saved');
+  expect(keyTerm('it won’t sync', THEN)).toBe('not-sync');
+  expect(keyTerm("they can't sign in", THEN)).toBe('not-sign');
+  expect(keyTerm("you're signed in", GIVEN)).toBe('signed');
   expect(termsOf(['Writer has no network, and a writer', 'it'], GIVEN)).toEqual(['writer']);
 });
 

@@ -98,3 +98,15 @@ test('0003.5 a graph wider than a phone keeps its full width and scrolls sideway
     'width=device-width, initial-scale=1'
   );
 });
+
+test('0003.6 a graph Mermaid cannot draw says so in place of the diagram', async () => {
+  const mermaid = fakeMermaid();
+  mermaid.render = async () => {
+    throw new Error('Parse error on line 2');
+  };
+  const page = openPage({ mermaid });
+  await vi.waitFor(() =>
+    expect(page.ui.diagram.textContent).toBe('Mermaid could not draw the graph. Error: Parse error on line 2')
+  );
+  expect(mermaid.configs[0].maxTextSize).toBe(1000000);
+});

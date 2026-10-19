@@ -10,7 +10,7 @@ One live user journey drawn from every may-journal repo's requirements.
 
 GitHub Pages serves this repo's main branch as it is, with no build or schedule. Open the page and paste a fine-grained, read-only Contents token. The page fetches each repo's `docs/requirements/*.md`, reduces every clause to a key term, and draws one Mermaid graph. The token stays in that browser's local storage, and nothing else is stored.
 
-Given key terms name the actor or state, When terms the action, and Then terms the outcome. Each is the first word left after filler words and pronouns. A When clause skips a leading "the noun" first, to reach its verb.
+Given key terms name the actor or state, When terms the action, and Then terms the outcome. Each is the first word left after filler words and pronouns, kept as `not-<term>` after a "not". A When clause skips a leading "the noun" first, to reach its verb.
 
 `src/journey.js` is also the package's one export, so other tools can reduce requirement docs the same way.
 

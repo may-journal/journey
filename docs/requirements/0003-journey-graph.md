@@ -38,3 +38,7 @@ Source: `src/journey.js:162`
     - Given Viewer is on a phone
         - When the graph is wider than the screen
             - Then the diagram keeps its full width and scrolls sideways
+- 0003.6
+    - Given Viewer has a graph Mermaid cannot draw
+        - When the graph draws
+            - Then the diagram says Mermaid could not draw it
