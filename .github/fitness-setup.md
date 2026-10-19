@@ -1,5 +1,11 @@
 ---
-relatedConfigurations: ['workflows/issue-check.yml', 'workflows/close-check.yml', 'workflows/comment-check.yml', 'workflows/dupe-check.yml']
+relatedConfigurations:
+  [
+    "workflows/issue-check.yml",
+    "workflows/close-check.yml",
+    "workflows/comment-check.yml",
+    "workflows/dupe-check.yml",
+  ]
 ---
 
 # Fitness setup
