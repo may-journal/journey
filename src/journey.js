@@ -433,3 +433,28 @@ export function flatten(results) {
   }
   return out;
 }
+
+// Actor groups. An acceptance belongs to a group when one of its Given key
+// terms is in that group's list, or, for app users, when a Given is spoken
+// as "I", "you" or "we": requirement docs write the app's user that way.
+export const GROUP = { both: 'both', developers: 'developers', users: 'users' };
+export const GROUP_TERMS = {
+  [GROUP.developers]: new Set('agent app contributor designer developer maintainer owner plugin'.split(' ')),
+  [GROUP.users]: new Set('friend guest host member participant reader user viewer visitor writer'.split(' ')),
+};
+const SPEAKER = /^(i|you|we)\b/i;
+
+/**
+ * The actor groups an acceptance belongs to, from its Given clauses.
+ * @param {Pick<Acceptance, 'givens'>} acceptance The acceptance.
+ * @returns {Set<string>} Its groups; empty when it fits neither.
+ */
+export function groupsOf({ givens }) {
+  const groups = new Set();
+  const terms = termsOf(givens, GIVEN);
+  for (const [group, list] of Object.entries(GROUP_TERMS)) {
+    if (terms.some((term) => list.has(term))) groups.add(group);
+  }
+  if (givens.some((given) => SPEAKER.test(given))) groups.add(GROUP.users);
+  return groups;
+}

@@ -1,6 +1,6 @@
 {
   "name": "journey",
-  "version": "0.0.0-2026.10.19.1600",
+  "version": "0.0.0-2026.10.19.1605",
   "description": "One live user journey drawn from every may-journal repo's requirements.",
   "type": "module",
   "exports": "./src/journey.js",

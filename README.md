@@ -12,6 +12,12 @@ GitHub Pages serves this repo's main branch as it is, with no build or schedule.
 
 Given key terms name the actor or state, When terms the action, and Then terms the outcome. Each is the first word left after filler words and pronouns, kept as `not-<term>` after a "not". A When clause skips a leading "the noun" first, to reach its verb.
 
+## Actor groups
+
+The Show filter picks App users, Developers or Both, and Both is the default. An acceptance joins a group when one of its Given key terms is on that group's list in `GROUP_TERMS` in `src/journey.js`. A Given spoken as "I", "you" or "we" also counts as App users, since docs write the app's user that way. An acceptance that fits neither group shows only under Both, and a note counts them.
+
+## Package
+
 `src/journey.js` is also the package's one export, so other tools can reduce requirement docs the same way.
 
 ## Structure
