@@ -2,16 +2,20 @@
 # and org-settings opens a PR in each repo whose copy differs. Edit it there.
 # The org ruleset never starts auto-merge.yml on ready_for_review, so a draft
 # marked ready would not get auto-merge. This caller runs it on that event.
+# GitHub also sends an edited event when a merged base moves a stacked PR onto
+# main. The job runs for it only when the base changed, so body edits cost
+# no Actions minutes.
 # pull_request_target runs the base branch's copy and checks out no PR code.
 name: Auto-merge on ready
 on:
   pull_request_target:
-    types: [ready_for_review]
+    types: [ready_for_review, edited]
 
 permissions:
   contents: read
 
 jobs:
   auto-merge:
+    if: github.event.action != 'edited' || github.event.changes.base
     uses: may-journal/fitness-runner/.github/workflows/auto-merge.yml@v1
     secrets: inherit
