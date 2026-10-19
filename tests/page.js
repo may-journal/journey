@@ -17,6 +17,7 @@ export const EDIT = 'I edit an entry';
 /** Mermaid keys of nodes the org's docs give. */
 export const KEY = { developer: 'g_developer', edit: 'w_edit', writer: 'g_writer' };
 
+export const SYNC_FILE = '0001-sync.md';
 export const SYNC = `# 0001 Sync
 
 Source: \`src/sync.js:7\`
@@ -44,7 +45,7 @@ export const CHECK = `# 0002 Check
 /** The org: app and tools have docs, empty has none, old is archived. */
 export const ORG = {
   [`${ORG_REPOS}1`]: { body: [repo(TOOLS), repo(APP), repo('empty'), repo('old', { archived: true })] },
-  ...repoDocs(APP, { '0001-sync.md': SYNC }),
+  ...repoDocs(APP, { [SYNC_FILE]: SYNC }),
   ...repoDocs(TOOLS, { '0002-check.md': CHECK }),
 };
 

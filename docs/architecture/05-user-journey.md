@@ -1,5 +1,5 @@
 ---
-fitnessFunctions: ["architecture-contract", "architecture-journey"]
+fitnessFunctions: ['architecture-contract', 'architecture-journey']
 ---
 
 # User Journey
@@ -41,6 +41,7 @@ flowchart TB
     graph[5 Journey graph<br/>Req 0003]:::screen
     tap(6 Tap a term<br/>Req 0004):::action
     details[7 Acceptances with links<br/>Req 0004]:::screen
+    group(8 Choose App users, Developers or Both<br/>Req 0005):::action
 
     viewer --> token
     token --> fetch
@@ -49,6 +50,8 @@ flowchart TB
     graph --> tap
     tap --> details
     graph -->|Refresh 0004| fetch
+    graph --> group
+    group --> graph
 
     classDef persona fill:#eef2ff,stroke:#6366f1,color:#312e81,stroke-width:2px
     classDef screen fill:#f8fafc,stroke:#64748b,color:#1e293b,stroke-width:2px
@@ -58,12 +61,13 @@ flowchart TB
 
 Numbers match the callout table.
 
-| #   | Description                                        | Type    | Why                                         |
-| --- | -------------------------------------------------- | ------- | ------------------------------------------- |
-| 1   | The viewer.                                        | Persona | Same person as the system context.          |
-| 2   | With no token or a bad one, the page asks for one. | Screen  | The token stays in that browser only.       |
-| 3   | The page reads each repo's requirement docs.       | System  | A failed repo or rate limit shows a card.   |
-| 4   | Each clause part shrinks to one key term.          | System  | Shared terms join one node.                 |
-| 5   | Terms form one graph, Given to When to Then.       | Screen  | Sliders set the node cap and minimum count. |
-| 6   | The viewer taps or presses Enter on a term.        | Action  | Keyboard and touch both work.               |
-| 7   | Each acceptance shows its text, doc, Source, test. | Screen  | It leads to the code behind the term.       |
+| #   | Description                                         | Type    | Why                                         |
+| --- | --------------------------------------------------- | ------- | ------------------------------------------- |
+| 1   | The viewer.                                         | Persona | Same person as the system context.          |
+| 2   | With no token or a bad one, the page asks for one.  | Screen  | The token stays in that browser only.       |
+| 3   | The page reads each repo's requirement docs.        | System  | A failed repo or rate limit shows a card.   |
+| 4   | Each clause part shrinks to one key term.           | System  | Shared terms join one node.                 |
+| 5   | Terms form one graph, Given to When to Then.        | Screen  | Sliders set the node cap and minimum count. |
+| 6   | The viewer taps or presses Enter on a term.         | Action  | Keyboard and touch both work.               |
+| 7   | Each acceptance shows its text, doc, Source, test.  | Screen  | It leads to the code behind the term.       |
+| 8   | The viewer narrows the graph to one actor group.    | Action  | It rebuilds in memory, with no fetch.       |
