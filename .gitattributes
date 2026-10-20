@@ -1,0 +1,2 @@
+# npm writes the lock file; GitHub collapses it in diffs
+package-lock.json linguist-generated=true
