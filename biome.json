@@ -20,6 +20,11 @@
       "trailingCommas": "es5"
     }
   },
+  "markdown": {
+    "parser": {
+      "frontmatter": true
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {

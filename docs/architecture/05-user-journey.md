@@ -1,5 +1,5 @@
 ---
-fitnessFunctions: ['architecture-contract', 'architecture-journey']
+fitnessFunctions: ["architecture-contract", "architecture-journey"]
 ---
 
 # User Journey
@@ -58,12 +58,12 @@ flowchart TB
 
 Numbers match the callout table.
 
-| #   | Description                                         | Type    | Why                                         |
-| --- | --------------------------------------------------- | ------- | ------------------------------------------- |
-| 1   | The viewer.                                         | Persona | Same person as the system context.          |
-| 2   | With no token or a bad one, the page asks for one.  | Screen  | The token stays in that browser only.       |
-| 3   | The page reads each repo's requirement docs.        | System  | A failed repo or rate limit shows a card.   |
-| 4   | Each clause part shrinks to one key term.           | System  | Shared terms join one node.                 |
-| 5   | Terms form one graph, Given to When to Then.        | Screen  | Sliders set the node cap and minimum count. |
-| 6   | The viewer taps or presses Enter on a term.         | Action  | Keyboard and touch both work.               |
-| 7   | Each acceptance shows its text, doc, Source, test.  | Screen  | It leads to the code behind the term.       |
+| #   | Description                                        | Type    | Why                                         |
+| --- | -------------------------------------------------- | ------- | ------------------------------------------- |
+| 1   | The viewer.                                        | Persona | Same person as the system context.          |
+| 2   | With no token or a bad one, the page asks for one. | Screen  | The token stays in that browser only.       |
+| 3   | The page reads each repo's requirement docs.       | System  | A failed repo or rate limit shows a card.   |
+| 4   | Each clause part shrinks to one key term.          | System  | Shared terms join one node.                 |
+| 5   | Terms form one graph, Given to When to Then.       | Screen  | Sliders set the node cap and minimum count. |
+| 6   | The viewer taps or presses Enter on a term.        | Action  | Keyboard and touch both work.               |
+| 7   | Each acceptance shows its text, doc, Source, test. | Screen  | It leads to the code behind the term.       |
