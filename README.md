@@ -22,12 +22,14 @@ Given key terms name the actor or state, When terms the action, and Then terms t
 
 Run `npm ci` once.
 
-| Target            | Does                                                                                                                                                                                                                                                                                    |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `make serve`      | Serves the page on port 8790, as Pages would. `PORT` picks another port.                                                                                                                                                                                                                |
-| `make test`       | Runs the requirement tests with full coverage.                                                                                                                                                                                                                                          |
-| `make check`      | Runs the fitness suite.                                                                                                                                                                                                                                                                 |
-| `make check-page` | Runs `scripts/check-page.js`: serves the page, opens it in headless Chrome with `GITHUB_TOKEN`, and taps a node. It prints what the page shows as JSON and saves light and dark screenshots to `out/`. `CHROME` picks the browser; the default is the shared Mac's Playwright Chromium. |
+| Target            | Does                                                                     |
+| ----------------- | ------------------------------------------------------------------------ |
+| `make serve`      | Serves the page on port 8790, as Pages would. `PORT` picks another port. |
+| `make test`       | Runs the requirement tests with full coverage.                           |
+| `make check`      | Runs the fitness suite.                                                  |
+| `make check-page` | Runs `scripts/check-page.js` against the live page, as below.            |
+
+`make check-page` serves the page, opens it in headless Chrome with `GITHUB_TOKEN`, and taps a node. It prints what the page shows as JSON and saves light and dark screenshots to `out/`. `CHROME` picks the browser; the default is the shared Mac's Playwright Chromium.
 
 ## Docs
 
