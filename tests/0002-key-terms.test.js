@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 import { flatten, KINDS, keyTerm, parseDoc, splitClause, termsOf } from '../src/journey.js';
-import { EDIT, SYNC } from './page.js';
+import { EDIT, NESTED, SYNC } from './page.js';
 
 const [GIVEN, WHEN, THEN] = KINDS;
 
-test('0002.1 each acceptance keeps its ID, line and clause texts', () => {
+test('0002.1 each acceptance keeps its ID, line and clause texts at either indent', () => {
   const doc = parseDoc(`${SYNC}- 0001.3\r\n- not an acceptance\n# 0009 Second heading\n`);
   expect(doc.id).toBe('0001');
   expect(doc.name).toBe('Sync');
@@ -21,6 +21,10 @@ test('0002.1 each acceptance keeps its ID, line and clause texts', () => {
     id: null,
     name: null,
   });
+  const nested = parseDoc(NESTED);
+  expect(nested.acceptances.map((a) => a.line)).toEqual([19, 23]);
+  const unlined = (/** @type {import('../src/journey.js').Acceptance} */ a) => ({ ...a, line: 0 });
+  expect(nested.acceptances.map(unlined)).toEqual(doc.acceptances.slice(0, 2).map(unlined));
   const bare = { ...parseDoc('- 0001.1\n'), path: 'docs/requirements/README.md', url: 'u' };
   expect(flatten([{ docs: [bare], repo: 'x' }])[0].doc).toBe(bare.path);
 });
