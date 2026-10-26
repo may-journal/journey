@@ -1,5 +1,5 @@
 ---
-fitnessFunctions: ['architecture-contract', 'architecture-containers']
+fitnessFunctions: ["architecture-contract", "architecture-containers"]
 ---
 
 # Containers
@@ -37,15 +37,15 @@ C4Container
 
 Numbers on nodes and arrows match the callout table.
 
-| #   | Description                                         | Why                                               |
-| --- | --------------------------------------------------- | ------------------------------------------------- |
-| 1   | Same viewer as the system context.                  | Every visit starts with this actor.               |
-| 2   | Journey's boundary.                                 | Everything inside it ships from this repo.        |
-| 3   | The `journey` package: `index.html` and `src`.      | It runs in the viewer's browser, with no server.  |
-| 4   | Same GitHub Pages as the system context.            | It serves the main branch's files unchanged.      |
-| 5   | Same API as the system context.                     | The page reads it with the viewer's token.        |
-| 6   | Same CDN as the system context.                     | The page checks the script's integrity hash.      |
-| 7   | The viewer opens the page.                          | The public way in.                                |
-| 8   | Pages hands the browser the HTML and its scripts.   | No build step stands between a commit and Pages.  |
-| 9   | The page lists repos and reads each one's docs.     | Everything else is built in memory on each load.  |
-| 10  | The page loads Mermaid to draw the graph.           | Mermaid is the only script from outside the repo. |
+| #   | Description                                       | Why                                               |
+| --- | ------------------------------------------------- | ------------------------------------------------- |
+| 1   | Same viewer as the system context.                | Every visit starts with this actor.               |
+| 2   | Journey's boundary.                               | Everything inside it ships from this repo.        |
+| 3   | The `journey` package: `index.html` and `src`.    | It runs in the viewer's browser, with no server.  |
+| 4   | Same GitHub Pages as the system context.          | It serves the main branch's files unchanged.      |
+| 5   | Same API as the system context.                   | The page reads it with the viewer's token.        |
+| 6   | Same CDN as the system context.                   | The page checks the script's integrity hash.      |
+| 7   | The viewer opens the page.                        | The public way in.                                |
+| 8   | Pages hands the browser the HTML and its scripts. | No build step stands between a commit and Pages.  |
+| 9   | The page lists repos and reads each one's docs.   | Everything else is built in memory on each load.  |
+| 10  | The page loads Mermaid to draw the graph.         | Mermaid is the only script from outside the repo. |
