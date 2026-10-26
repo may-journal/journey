@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0005 Actor Filter
 
 ## Why

@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0002 Key Terms
 
 ## Why

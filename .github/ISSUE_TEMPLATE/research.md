@@ -1,5 +1,4 @@
 ---
-relatedConfigurations: ["../workflows/issue-check.yml"]
 name: Research
 about: A question to answer before planning work, with what to find out.
 title: "[Research] Short name of the question"

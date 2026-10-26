@@ -1,7 +1,3 @@
----
-fitnessFunctions: ["architecture-contract", "architecture-containers"]
----
-
 # Containers
 
 ```mermaid

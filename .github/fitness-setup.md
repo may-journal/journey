@@ -1,11 +1,3 @@
----
-relatedConfigurations:
-  - workflows/issue-check.yml
-  - workflows/close-check.yml
-  - workflows/comment-check.yml
-  - workflows/dupe-check.yml
----
-
 # Fitness setup
 
 may-journal/.github holds the source copy; org-settings syncs it by PR.
