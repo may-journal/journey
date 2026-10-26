@@ -12,19 +12,15 @@ may-journal/.github holds the source copy; org-settings syncs it by PR.
 
 ## Local hooks
 
-Follow Fitness's [latest installer setup](https://github.com/may-journal/fitness-runner/blob/main/docs/ci.md#install-latest) after setting this org-specific destination:
+Follow Fitness's [latest installer setup](https://github.com/may-journal/fitness-runner/blob/main/docs/ci.md#install-latest). It installs to `$HOME/.local/share/fitness` unless `FITNESS_INSTALL_DIR` names another folder, and the synced hooks follow the same rule.
 
-```sh
-export FITNESS_INSTALL_DIR="$HOME/.local/share/may-journal/fitness"
-```
-
-The synced hooks expect `$HOME/.local/share/may-journal/fitness/fitness-install` and use `--version latest`. Before switching, review existing hooks and retain custom checks using the [shared hook guidance](https://github.com/may-journal/fitness-runner/blob/main/docs/adoption.md#per-repo-pieces). Keep custom message and push checks until their migration is reviewed; the sync leaves their files intact.
+The synced hooks run `${FITNESS_INSTALL_DIR:-$HOME/.local/share/fitness}/fitness-install` with `--version latest`. Before switching, review existing hooks and retain custom checks using the [shared hook guidance](https://github.com/may-journal/fitness-runner/blob/main/docs/adoption.md#per-repo-pieces). Keep custom message and push checks until their migration is reviewed; the sync leaves their files intact.
 
 At each checkout's root, activate the synced hook directory and run Fitness:
 
 ```sh
 git config --local core.hooksPath .fitness-hooks
-"$HOME/.local/share/may-journal/fitness/fitness-install" --version latest
+"${FITNESS_INSTALL_DIR:-$HOME/.local/share/fitness}/fitness-install" --version latest
 ```
 
 ## Workflow ownership
