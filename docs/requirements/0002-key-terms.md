@@ -21,9 +21,9 @@ Source: `src/journey.js:114`
 ## Requirements
 
 - 0002.1
-  - Given Viewer has a requirement doc
+  - Given Viewer has a requirement doc nested four or two spaces deep, with front matter
     - When the page reads it
-      - Then each acceptance keeps its ID, line, Source and clause texts, and a doc without a heading goes by its path
+      - Then each acceptance keeps its ID, line, Source and clauses, front matter adds none, and no heading means its path
 - 0002.2
   - Given Viewer has a clause joined by commas or "and"
     - When the page splits it
