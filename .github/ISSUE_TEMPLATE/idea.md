@@ -7,6 +7,7 @@ labels: Idea
 ---
 
 <!-- Simple one sentence pitch for the real value a person would see if this idea shipped. -->
+
 > REPLACE-ME
 
 ## Background
@@ -16,7 +17,7 @@ labels: Idea
 ## What it could look like
 
 <!-- A short sketch of the idea in use, as prose or a few list items. -->
-- REPLACE-WITH-FIRST-SKETCH
 
+- REPLACE-WITH-FIRST-SKETCH
 
 <!-- Absolutely NO OTHER SECTIONS. -->

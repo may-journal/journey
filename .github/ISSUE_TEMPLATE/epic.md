@@ -7,6 +7,7 @@ labels: Epic
 ---
 
 <!-- Simple one sentence pitch for the real value a person sees once every Plan in this epic ships. -->
+
 > REPLACE-ME
 
 ## Background
@@ -16,7 +17,7 @@ labels: Epic
 ## What needs to happen
 
 <!-- Each Plan as a plain #N or org/repo#N reference, in run order, each one a sub-issue of this epic. Add a short note after a comma, such as ", after #N". No checkboxes, status, emoji or tables. Split a list over 8 under ### headings. -->
-1. #REPLACE-WITH-FIRST-PLAN
 
+1. #REPLACE-WITH-FIRST-PLAN
 
 <!-- Absolutely NO OTHER SECTIONS. -->

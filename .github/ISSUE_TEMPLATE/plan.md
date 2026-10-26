@@ -7,6 +7,7 @@ labels: Plan
 ---
 
 <!-- Simple one sentence pitch for the real value a person sees as a result of this plan. -->
+
 > REPLACE-ME
 
 ## Background
@@ -17,7 +18,7 @@ labels: Plan
 ## What needs to happen
 
 <!-- Simple checklist to complete, nested is OK for complex steps -->
-- [ ] REPLACE-WITH-FIRST-STEP
 
+- [ ] REPLACE-WITH-FIRST-STEP
 
 <!-- Absolutely NO OTHER SECTIONS. And double absolutely no "open questions" -->
