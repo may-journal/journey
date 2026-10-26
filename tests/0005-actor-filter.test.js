@@ -1,10 +1,9 @@
 import { expect, test, vi } from 'vitest';
 import { GROUP, groupsOf } from '../src/journey.js';
 import { ORG_REPOS, repo, repoDocs } from './github.js';
+import { KEY, nodeOf, ORG, openPage } from './page.js';
 
 const FIRST = `${ORG_REPOS}1`;
-
-import { KEY, nodeOf, ORG, openPage } from './page.js';
 
 const CLOCK_KEY = 'g_clock';
 const CLOCK = `# 0003 Clock
