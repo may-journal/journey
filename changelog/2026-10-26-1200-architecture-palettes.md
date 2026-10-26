@@ -8,3 +8,4 @@ relatedConfigurations: ["../docs/architecture/04-code.md"]
 - Docs: the context, containers and components views color every element by its kind.
 - Docs: the code view colors every class violet.
 - Docs: arrows carry letters, as the callout tables say.
+- Docs: the components view keeps its five real arrows and moves the core component and jsDelivr so no arrow crosses a box.

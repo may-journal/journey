@@ -8,16 +8,15 @@ fitnessFunctions: ["architecture-contract", "architecture-components"]
 C4Component
     title Journey page
 
+    System_Ext(cdn, "7 jsDelivr")
     Person(viewer, "1 Viewer")
+    System_Ext(github, "6 GitHub API")
 
     Container_Boundary(page, "2 Journey page (index.html)") {
+        Component(core, "5 Core", "JavaScript", "src/journey.js")
         Component(shell, "3 Shell", "HTML, CSS", "index.html")
         Component(screen, "4 Page script", "JavaScript", "src/page.js")
-        Component(core, "5 Core", "JavaScript", "src/journey.js")
     }
-
-    System_Ext(github, "6 GitHub API")
-    System_Ext(cdn, "7 jsDelivr")
 
     Rel(viewer, shell, "A")
     Rel(shell, screen, "B")
