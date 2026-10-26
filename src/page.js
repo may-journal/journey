@@ -2,7 +2,17 @@
 // takes its window, fetch and Mermaid as arguments, so tests open the real
 // index.html with replayed GitHub answers and a stand-in Mermaid.
 
-import { buildGraph, ERROR, fetchJourney, flatten, makeClient, selectGraph, toMermaid } from './journey.js';
+import {
+  buildGraph,
+  ERROR,
+  fetchJourney,
+  flatten,
+  GROUP,
+  groupsOf,
+  makeClient,
+  selectGraph,
+  toMermaid,
+} from './journey.js';
 
 export const TOKEN_KEY = 'journey.token';
 export const SELECTED = 'selected';
@@ -42,6 +52,8 @@ export function start({ fetchImpl, mermaid, window }) {
   let renders = 0;
   /** @type {import('./journey.js').Linked[]} */
   let acceptances = [];
+  /** @type {import('./journey.js').Linked[]} The acceptances the filters keep, which the graph indexes. */
+  let shown = [];
   let graph = buildGraph([]);
   /** @type {string | null} */
   let selected = null;
@@ -76,8 +88,6 @@ export function start({ fetchImpl, mermaid, window }) {
 
   const load = async () => {
     const mine = ++run;
-    selected = null;
-    ui.details.hidden = true;
     ui.errors.replaceChildren();
     ui.status.textContent = "Loading every repo's requirements…";
     // Answers finish out of order, so the status keeps the lowest count left.
@@ -113,7 +123,14 @@ export function start({ fetchImpl, mermaid, window }) {
   };
 
   const rebuild = async () => {
-    graph = buildGraph(acceptances);
+    selected = null;
+    ui.details.hidden = true;
+    const group = ui.group.value;
+    const groups = acceptances.map(groupsOf);
+    shown = acceptances.filter((_, i) => group === GROUP.both || groups[i].has(group));
+    const neither = groups.filter((g) => !g.size).length;
+    ui.groupNote.textContent = `${neither} acceptances fit neither group, so they show only under Both.`;
+    graph = buildGraph(shown);
     await draw();
   };
 
@@ -187,7 +204,7 @@ export function start({ fetchImpl, mermaid, window }) {
     selected = node.key;
     ui.detailsTitle.textContent = `${node.kind} “${node.term}” · ${node.count} acceptances`;
     const items = node.acceptances.map((i) => {
-      const a = acceptances[i];
+      const a = shown[i];
       const head = row();
       head.append(link(a.url, `${a.repo} · ${a.id}`), a.doc);
       const dl = make('dl');
@@ -221,6 +238,7 @@ export function start({ fetchImpl, mermaid, window }) {
   };
   ui.forget.onclick = () => askToken('');
   ui.refresh.onclick = load;
+  ui.group.onchange = rebuild;
   for (const slider of [ui.cap, ui.min]) {
     slider.oninput = () => (ui[`${slider.id}Out`].textContent = slider.value);
     slider.onchange = draw;
