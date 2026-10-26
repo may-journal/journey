@@ -24,6 +24,13 @@ C4Component
     Rel(screen, core, "C")
     Rel(core, github, "D")
     Rel(shell, cdn, "E")
+
+    UpdateElementStyle(viewer, $bgColor="#334155", $borderColor="#1e293b", $fontColor="#ffffff")
+    UpdateElementStyle(shell, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(screen, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(core, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(github, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
+    UpdateElementStyle(cdn, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
 ```
 
 ```mermaid
@@ -34,9 +41,14 @@ C4Component
     Container_Boundary(cb, "Container boundary") {
         Component(c, "Component", "Tech", "Logical unit")
     }
+    System_Ext(e, "External", "Outside our boundary")
+
+    UpdateElementStyle(p, $bgColor="#334155", $borderColor="#1e293b", $fontColor="#ffffff")
+    UpdateElementStyle(c, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(e, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
 ```
 
-Numbers on nodes and arrows match the callout table.
+Numbers on nodes and letters on arrows match the callout table.
 
 | #   | Description                                            | Why                                                |
 | --- | ------------------------------------------------------ | -------------------------------------------------- |
