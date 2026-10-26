@@ -18,10 +18,10 @@ C4Container
     System_Ext(github, "5 GitHub API", "REST.")
     System_Ext(cdn, "6 jsDelivr", "Serves Mermaid 12.2.0.")
 
-    Rel(viewer, pages, "7")
-    Rel(pages, page, "8")
-    Rel(page, github, "9")
-    Rel(page, cdn, "10")
+    Rel(viewer, pages, "A")
+    Rel(pages, page, "B")
+    Rel(page, github, "C")
+    Rel(page, cdn, "D")
 ```
 
 ```mermaid
@@ -45,7 +45,7 @@ Numbers on nodes and arrows match the callout table.
 | 4   | Same GitHub Pages as the system context.          | It serves the main branch's files unchanged.      |
 | 5   | Same API as the system context.                   | The page reads it with the viewer's token.        |
 | 6   | Same CDN as the system context.                   | The page checks the script's integrity hash.      |
-| 7   | The viewer opens the page.                        | The public way in.                                |
-| 8   | Pages hands the browser the HTML and its scripts. | No build step stands between a commit and Pages.  |
-| 9   | The page lists repos and reads each one's docs.   | Everything else is built in memory on each load.  |
-| 10  | The page loads Mermaid to draw the graph.         | Mermaid is the only script from outside the repo. |
+| A   | The viewer opens the page.                        | The public way in.                                |
+| B   | Pages hands the browser the HTML and its scripts. | No build step stands between a commit and Pages.  |
+| C   | The page lists repos and reads each one's docs.   | Everything else is built in memory on each load.  |
+| D   | The page loads Mermaid to draw the graph.         | Mermaid is the only script from outside the repo. |

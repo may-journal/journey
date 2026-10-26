@@ -14,10 +14,10 @@ C4Context
     System_Ext(github, "4 GitHub API", "Lends the org's repos and requirement docs.")
     System_Ext(cdn, "5 jsDelivr", "Serves the pinned Mermaid script.")
 
-    Rel(viewer, pages, "6")
-    Rel(pages, journey, "7")
-    Rel(journey, github, "8")
-    Rel(journey, cdn, "9")
+    Rel(viewer, pages, "A")
+    Rel(pages, journey, "B")
+    Rel(journey, github, "C")
+    Rel(journey, cdn, "D")
 ```
 
 ```mermaid
@@ -38,7 +38,7 @@ Numbers on nodes and arrows match the callout table.
 | 3   | GitHub Pages, which serves the files unchanged.  | Nothing is built, scheduled or stored there.       |
 | 4   | The API the page reads with the viewer's token.  | Requirements live in each repo, not in this one.   |
 | 5   | The CDN that serves Mermaid at a pinned version. | Mermaid draws the graph.                           |
-| 6   | The viewer opens the public page.                | The only way in.                                   |
-| 7   | Pages serves the HTML and its scripts.           | Private requirements are never published.          |
-| 8   | The page fetches every repo's requirement docs.  | Only the token is stored, in the viewer's browser. |
-| 9   | The page loads Mermaid with an integrity hash.   | A changed script never runs with the token.        |
+| A   | The viewer opens the public page.                | The only way in.                                   |
+| B   | Pages serves the HTML and its scripts.           | Private requirements are never published.          |
+| C   | The page fetches every repo's requirement docs.  | Only the token is stored, in the viewer's browser. |
+| D   | The page loads Mermaid with an integrity hash.   | A changed script never runs with the token.        |
