@@ -22,6 +22,12 @@ C4Container
     Rel(pages, page, "B")
     Rel(page, github, "C")
     Rel(page, cdn, "D")
+
+    UpdateElementStyle(viewer, $bgColor="#334155", $borderColor="#1e293b", $fontColor="#ffffff")
+    UpdateElementStyle(page, $bgColor="#0f766e", $borderColor="#115e59", $fontColor="#ffffff")
+    UpdateElementStyle(pages, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
+    UpdateElementStyle(github, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
+    UpdateElementStyle(cdn, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
 ```
 
 ```mermaid
@@ -33,9 +39,13 @@ C4Container
         Container(c, "Container", "Tech", "Runnable or deployable unit")
     }
     System_Ext(e, "External", "Outside our boundary")
+
+    UpdateElementStyle(p, $bgColor="#334155", $borderColor="#1e293b", $fontColor="#ffffff")
+    UpdateElementStyle(c, $bgColor="#0f766e", $borderColor="#115e59", $fontColor="#ffffff")
+    UpdateElementStyle(e, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
 ```
 
-Numbers on nodes and arrows match the callout table.
+Numbers on nodes and letters on arrows match the callout table.
 
 | #   | Description                                       | Why                                               |
 | --- | ------------------------------------------------- | ------------------------------------------------- |

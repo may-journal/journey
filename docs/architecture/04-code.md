@@ -24,6 +24,10 @@ classDiagram
 
     page --> core : A
     core --> failure : B
+
+    style page fill:#6d28d9,stroke:#4c1d95,color:#ffffff
+    style core fill:#6d28d9,stroke:#4c1d95,color:#ffffff
+    style failure fill:#6d28d9,stroke:#4c1d95,color:#ffffff
 ```
 
 ```mermaid
@@ -36,9 +40,13 @@ classDiagram
     class Child
     Parent <|-- Child : inherits
     Parent --> Child : uses
+
+    style Example fill:#6d28d9,stroke:#4c1d95,color:#ffffff
+    style Parent fill:#6d28d9,stroke:#4c1d95,color:#ffffff
+    style Child fill:#6d28d9,stroke:#4c1d95,color:#ffffff
 ```
 
-Numbers on classes and relationships match the callout table.
+Numbers on classes and letters on relationships match the callout table.
 
 | #   | Description                                                    | Why                                                  |
 | --- | -------------------------------------------------------------- | ---------------------------------------------------- |
