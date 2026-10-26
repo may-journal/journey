@@ -16,8 +16,6 @@ repos whose requirement docs load
 
 unarchived repos in the org
 
-Source: `src/journey.js:338`
-
 ## Requirements
 
 - 0001.1

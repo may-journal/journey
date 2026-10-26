@@ -16,8 +16,6 @@ acceptances that add a node to the graph
 
 acceptances in the fetched docs
 
-Source: `src/journey.js:162`
-
 ## Requirements
 
 - 0003.1

@@ -69,5 +69,5 @@ Numbers match the callout table.
 | 4   | Each clause part shrinks to one key term.          | System  | Shared terms join one node.                 |
 | 5   | Terms form one graph, Given to When to Then.       | Screen  | Sliders set the node cap and minimum count. |
 | 6   | The viewer taps or presses Enter on a term.        | Action  | Keyboard and touch both work.               |
-| 7   | Each acceptance shows its text, doc, Source, test. | Screen  | It leads to the code behind the term.       |
+| 7   | Each acceptance shows its text, doc and test.      | Screen  | It leads to the code behind the term.       |
 | 8   | The viewer narrows the graph to one actor group.   | Action  | It rebuilds in memory, with no fetch.       |

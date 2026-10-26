@@ -8,7 +8,6 @@ export const API = 'https://api.github.com';
 const HEADING = /^#\s+(\d{4})\s+(.+?)\s*$/;
 const ACCEPTANCE = /^\s*-\s+(\d{4}\.\d+)\s*$/;
 const CLAUSE = /^\s*-\s+(Given|When|Then)\s+(.+?)\s*$/;
-const SOURCE = /^Source:\s*`([^`:]+):(\d+)`/;
 
 /** @typedef {'given' | 'when' | 'then'} Kind */
 
@@ -29,13 +28,13 @@ export const ERROR = { HTTP: 'http', RATE: 'rate', TOKEN: 'token' };
  */
 
 /**
- * Parses one requirement doc into its ID, name, Source and acceptances.
+ * Parses one requirement doc into its ID, name and acceptances.
  * @param {string} markdown The doc's text.
- * @returns {{ acceptances: Acceptance[], id: string | null, name: string | null, source: { line: number, path: string } | null }} The parsed doc.
+ * @returns {{ acceptances: Acceptance[], id: string | null, name: string | null }} The parsed doc.
  */
 export function parseDoc(markdown) {
   /** @type {ReturnType<typeof parseDoc>} */
-  const doc = { acceptances: [], id: null, name: null, source: null };
+  const doc = { acceptances: [], id: null, name: null };
   /** @type {Acceptance | null} */
   let current = null;
   markdown.split(/\r?\n/).forEach((line, index) => {
@@ -43,11 +42,6 @@ export function parseDoc(markdown) {
     if (heading) {
       doc.id = heading[1];
       doc.name = heading[2];
-      return;
-    }
-    const source = !doc.source && line.match(SOURCE);
-    if (source) {
-      doc.source = { line: Number(source[2]), path: source[1] };
       return;
     }
     const acceptance = line.match(ACCEPTANCE);
@@ -341,7 +335,6 @@ export function makeClient({ fetchImpl, onRate, token }) {
 /**
  * @typedef {object} RepoResult
  * @property {string} repo Repo name.
- * @property {string} [branch] Default branch.
  * @property {(ReturnType<typeof parseDoc> & { path: string, url: string })[]} docs Its requirement docs.
  * @property {string} [error] Why it failed to load.
  */
@@ -353,7 +346,7 @@ export function makeClient({ fetchImpl, onRate, token }) {
  * @returns {Promise<RepoResult[]>} One result per repo, sorted by name.
  */
 export async function fetchJourney({ get, limit }) {
-  /** @type {{ archived: boolean, default_branch: string, name: string }[]} */
+  /** @type {{ archived: boolean, name: string }[]} */
   const repos = [];
   for (let page = 1; ; page++) {
     const batch = await get(`${API}/orgs/${ORG}/repos?type=all&per_page=100&page=${page}`);
@@ -378,7 +371,7 @@ export async function fetchJourney({ get, limit }) {
           return { path: file.path, url: file.html_url, ...parseDoc(decodeBase64(body.content)) };
         })
       );
-      return { branch: repo.default_branch, docs, repo: repo.name };
+      return { docs, repo: repo.name };
     } catch (error) {
       const failure = /** @type {FetchError} */ (error);
       if (failure.kind === ERROR.TOKEN || failure.kind === ERROR.RATE) {
@@ -392,7 +385,7 @@ export async function fetchJourney({ get, limit }) {
 }
 
 /**
- * @typedef {Acceptance & { doc: string, repo: string, source: string | null, test: string, url: string }} Linked
+ * @typedef {Acceptance & { doc: string, repo: string, test: string, url: string }} Linked
  */
 
 /**
@@ -416,15 +409,12 @@ export function flatten(results) {
   /** @type {Linked[]} */
   const out = [];
   for (const result of results) {
-    const blob = `https://github.com/${ORG}/${result.repo}/blob/${result.branch}`;
     for (const doc of result.docs) {
-      const source = doc.source ? `${blob}/${doc.source.path}#L${doc.source.line}` : null;
       for (const acceptance of doc.acceptances) {
         out.push({
           ...acceptance,
           doc: doc.id ? `${doc.id} ${doc.name}` : doc.path,
           repo: result.repo,
-          source,
           test: testSearch(result.repo, acceptance.id),
           url: `${doc.url}?plain=1#L${acceptance.line}`,
         });
