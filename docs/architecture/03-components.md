@@ -19,11 +19,11 @@ C4Component
     System_Ext(github, "6 GitHub API")
     System_Ext(cdn, "7 jsDelivr")
 
-    Rel(viewer, shell, "8")
-    Rel(shell, screen, "9")
-    Rel(screen, core, "10")
-    Rel(core, github, "11")
-    Rel(shell, cdn, "12")
+    Rel(viewer, shell, "A")
+    Rel(shell, screen, "B")
+    Rel(screen, core, "C")
+    Rel(core, github, "D")
+    Rel(shell, cdn, "E")
 ```
 
 ```mermaid
@@ -47,8 +47,8 @@ Numbers on nodes and arrows match the callout table.
 | 5   | Parsing, key terms, the graph, Mermaid text and fetch. | It touches no DOM, so tests call it directly.      |
 | 6   | Same API as the containers view.                       | Only the core calls it.                            |
 | 7   | Same CDN as the containers view.                       | Only the shell loads from it.                      |
-| 8   | The viewer pastes a token, moves sliders, taps terms.  | The main way in.                                   |
-| 9   | The shell's module script starts the page script.      | It passes the browser's own fetch and Mermaid.     |
-| 10  | The page script calls the core to load and draw.       | The page script holds no parsing or fetch logic.   |
-| 11  | The core lists repos and reads their docs.             | Bad tokens and rate limits stop it with a message. |
-| 12  | The shell loads Mermaid before the page script runs.   | Deferred scripts run in document order.            |
+| A   | The viewer pastes a token, moves sliders, taps terms.  | The main way in.                                   |
+| B   | The shell's module script starts the page script.      | It passes the browser's own fetch and Mermaid.     |
+| C   | The page script calls the core to load and draw.       | The page script holds no parsing or fetch logic.   |
+| D   | The core lists repos and reads their docs.             | Bad tokens and rate limits stop it with a message. |
+| E   | The shell loads Mermaid before the page script runs.   | Deferred scripts run in document order.            |
