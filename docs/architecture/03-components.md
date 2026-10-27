@@ -8,22 +8,28 @@ fitnessFunctions: ["architecture-contract", "architecture-components"]
 C4Component
     title Journey page
 
+    System_Ext(cdn, "7 jsDelivr")
     Person(viewer, "1 Viewer")
+    System_Ext(github, "6 GitHub API")
 
     Container_Boundary(page, "2 Journey page (index.html)") {
+        Component(core, "5 Core", "JavaScript", "src/journey.js")
         Component(shell, "3 Shell", "HTML, CSS", "index.html")
         Component(screen, "4 Page script", "JavaScript", "src/page.js")
-        Component(core, "5 Core", "JavaScript", "src/journey.js")
     }
-
-    System_Ext(github, "6 GitHub API")
-    System_Ext(cdn, "7 jsDelivr")
 
     Rel(viewer, shell, "A")
     Rel(shell, screen, "B")
     Rel(screen, core, "C")
     Rel(core, github, "D")
     Rel(shell, cdn, "E")
+
+    UpdateElementStyle(viewer, $bgColor="#334155", $borderColor="#1e293b", $fontColor="#ffffff")
+    UpdateElementStyle(shell, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(screen, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(core, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(github, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
+    UpdateElementStyle(cdn, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
 ```
 
 ```mermaid
@@ -34,9 +40,14 @@ C4Component
     Container_Boundary(cb, "Container boundary") {
         Component(c, "Component", "Tech", "Logical unit")
     }
+    System_Ext(e, "External", "Outside our boundary")
+
+    UpdateElementStyle(p, $bgColor="#334155", $borderColor="#1e293b", $fontColor="#ffffff")
+    UpdateElementStyle(c, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(e, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
 ```
 
-Numbers on nodes and arrows match the callout table.
+Numbers on nodes and letters on arrows match the callout table.
 
 | #   | Description                                            | Why                                                |
 | --- | ------------------------------------------------------ | -------------------------------------------------- |
