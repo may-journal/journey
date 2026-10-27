@@ -1,0 +1,109 @@
+# Synced to each static-site repo that opts in through settings/repo-files.json.
+# may-journal/.github holds the source copy in templates/static-site; edit it there.
+# It is synced whole, since a public repo cannot call a private repo's workflow.
+# A repo's own Pages workflow builds the site, uploads it as an artifact, and
+# calls this file. It publishes the build to the gh-pages branch, which
+# GitHub Pages serves: main at the root, and each pull request under
+# pr/<number>/, with one comment on the pull request linking its preview.
+# Closing a pull request removes its folder. A fork's pull request gets a
+# read-only token, so it gets no preview. The caller grants contents and
+# pull-requests write and pages read, and calls it on push to main and on
+# pull_request opened, synchronize, reopened and closed.
+name: Static preview
+
+on:
+  workflow_call:
+    inputs:
+      artifact:
+        description: Name of the uploaded artifact that holds the built site.
+        type: string
+        default: site
+
+permissions: {}
+
+jobs:
+  publish:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      pages: read
+    # Runs for one pull request, or for main, go one at a time, so a close
+    # never races that pull request's last push. Runs for different folders
+    # can overlap, so the publish step retries a rejected push.
+    concurrency:
+      group: static-preview-${{ github.event.pull_request.number || 'main' }}
+      cancel-in-progress: false
+    env:
+      TARGET: ${{ github.event_name == 'pull_request' && format('pr/{0}', github.event.pull_request.number) || '.' }}
+      CLOSED: ${{ github.event.action == 'closed' }}
+      SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Download the built site
+        if: github.event.action != 'closed'
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact }}
+          path: ${{ runner.temp }}/site
+      - name: Publish to gh-pages
+        env:
+          REMOTE: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          SITE: ${{ runner.temp }}/site
+          PAGES: ${{ runner.temp }}/gh-pages
+        run: |
+          set -euo pipefail
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            rm -rf "$PAGES"
+            if git ls-remote --exit-code "$REMOTE" refs/heads/gh-pages >/dev/null; then
+              git clone --quiet --depth 1 --branch gh-pages "$REMOTE" "$PAGES"
+            else
+              git init --quiet --initial-branch=gh-pages "$PAGES"
+              git -C "$PAGES" remote add origin "$REMOTE"
+            fi
+            # main replaces everything but the previews; a pull request
+            # replaces only its own folder.
+            if [ "$TARGET" = . ]; then
+              find "$PAGES" -mindepth 1 -maxdepth 1 ! -name .git ! -name pr -exec rm -rf {} +
+            else
+              rm -rf "${PAGES:?}/$TARGET"
+            fi
+            if [ "$CLOSED" != true ]; then
+              mkdir -p "$PAGES/$TARGET"
+              cp -R "$SITE/." "$PAGES/$TARGET/"
+            fi
+            # Pages would run Jekyll on the branch without this file.
+            touch "$PAGES/.nojekyll"
+            git -C "$PAGES" add -A
+            if git -C "$PAGES" diff --cached --quiet; then
+              exit 0
+            fi
+            git -C "$PAGES" commit --quiet -m "chore(pages): publish $TARGET at ${SHA:0:7}"
+            if git -C "$PAGES" push --quiet origin HEAD:gh-pages; then
+              exit 0
+            fi
+            echo "::notice::Another run pushed to gh-pages first; retrying ($attempt of 5)."
+          done
+          exit 1
+      - name: Link the preview
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+          marker='<!-- static-preview -->'
+          site=$(gh api "repos/$OWNER/$REPO/pages" --jq .html_url 2>/dev/null || echo "https://$OWNER.github.io/$REPO/")
+          body=$(printf 'Preview of %s: %s\n\n%s\n' "${SHA:0:7}" "${site%/}/pr/$NUMBER/" "$marker")
+          id=$(gh api "repos/$OWNER/$REPO/issues/$NUMBER/comments" --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | contains(\"$marker\"))) | .id" | sed -n 1p)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$OWNER/$REPO/issues/comments/$id" -f "body=$body" >/dev/null
+          else
+            gh api "repos/$OWNER/$REPO/issues/$NUMBER/comments" -f "body=$body" >/dev/null
+          fi
