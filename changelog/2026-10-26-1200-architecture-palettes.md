@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../docs/architecture/04-code.md"]
----
-
 ### 2026.10.26.1200
 
 > Draw the architecture views in each level's shared form and palette.

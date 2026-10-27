@@ -11,7 +11,7 @@ const drawn = (/** @type {import('./page.js').Page} */ page, /** @type {string} 
 const links = (/** @type {Element} */ li) => [...li.querySelectorAll('a')].map((a) => [a.textContent, a.href]);
 const items = (/** @type {import('./page.js').Page} */ page) => page.ui.detailsList.querySelectorAll('li');
 
-test('0004.1 tapping a node lists its acceptances with doc, Source and test links', async () => {
+test('0004.1 tapping a node lists its acceptances with doc and test links', async () => {
   const page = openPage();
   await drawn(page, KEY.writer);
   tap(page, KEY.writer);
@@ -19,11 +19,10 @@ test('0004.1 tapping a node lists its acceptances with doc, Source and test link
   expect(page.ui.details.hidden).toBe(false);
   expect(page.ui.detailsTitle.textContent).toBe('given “writer” · 2 acceptances');
   expect(items(page)).toHaveLength(2);
-  const doc = 'https://github.com/may-journal/app/blob/main/docs/requirements/0001-sync.md?plain=1#L11';
+  const doc = 'https://github.com/may-journal/app/blob/main/docs/requirements/0001-sync.md?plain=1#L9';
   expect(links(items(page)[1])).toEqual([
     ['app · 0001.2', doc],
     [LINKS.doc, doc],
-    [LINKS.source, 'https://github.com/may-journal/app/blob/main/src/sync.js#L7'],
     [
       LINKS.test,
       'https://github.com/search?type=code&q=repo%3Amay-journal%2Fapp%20%220001.2%22%20-path%3Adocs%2Frequirements',

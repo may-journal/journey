@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0003 Journey Graph
 
 ## Why
@@ -15,8 +11,6 @@ acceptances that add a node to the graph
 -
 
 acceptances in the fetched docs
-
-Source: `src/journey.js:162`
 
 ## Requirements
 

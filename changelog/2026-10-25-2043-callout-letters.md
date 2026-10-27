@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../biome.json", "../package.json"]
----
-
 ### 2026.10.25.2043
 
 - Docs: every arrow in the architecture diagrams now carries a letter callout, such as A or B, instead of a number

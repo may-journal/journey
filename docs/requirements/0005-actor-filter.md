@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0005 Actor Filter
 
 ## Why
@@ -15,8 +11,6 @@ acceptances placed in App users or Developers
 -
 
 acceptances in the fetched docs
-
-Source: `src/journey.js:452`
 
 ## Requirements
 

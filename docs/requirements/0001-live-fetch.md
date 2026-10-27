@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0001 Live Fetch
 
 ## Why
@@ -15,8 +11,6 @@ repos whose requirement docs load
 -
 
 unarchived repos in the org
-
-Source: `src/journey.js:338`
 
 ## Requirements
 

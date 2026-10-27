@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0004 Node Details
 
 ## Why
@@ -16,14 +12,12 @@ node taps that list acceptances with their links
 
 node taps
 
-Source: `src/page.js:150`
-
 ## Requirements
 
 - 0004.1
   - Given Viewer sees the graph
     - When they tap a node
-      - Then it lists that node's acceptances with doc, Source and test links
+      - Then it lists that node's acceptances with doc and test links
 - 0004.2
   - Given Viewer focuses a node with the keyboard
     - When they press Enter or Space

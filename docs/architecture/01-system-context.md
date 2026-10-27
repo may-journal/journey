@@ -1,7 +1,3 @@
----
-fitnessFunctions: ["architecture-contract", "architecture-actors"]
----
-
 # System Context
 
 ```mermaid

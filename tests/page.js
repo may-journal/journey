@@ -20,8 +20,6 @@ export const KEY = { developer: 'g_developer', edit: 'w_edit', writer: 'g_writer
 export const SYNC_FILE = '0001-sync.md';
 export const SYNC = `# 0001 Sync
 
-Source: \`src/sync.js:7\`
-
 ## Requirements
 
 - 0001.1
