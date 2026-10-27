@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0004 Node Details
 
 ## Why

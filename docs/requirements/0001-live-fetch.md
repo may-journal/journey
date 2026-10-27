@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0001 Live Fetch
 
 ## Why

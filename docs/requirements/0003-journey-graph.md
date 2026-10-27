@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0003 Journey Graph
 
 ## Why
