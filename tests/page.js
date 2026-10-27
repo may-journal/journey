@@ -77,12 +77,13 @@ export function fakeMermaid() {
 
 /**
  * Opens the page.
- * @param {{ dark?: boolean, mermaid?: ReturnType<typeof fakeMermaid>, routes?: Record<string, import('./github.js').Route>, token?: string | null }} [options] Saved token, GitHub answers, color scheme and Mermaid.
+ * @param {{ dark?: boolean, mermaid?: ReturnType<typeof fakeMermaid>, routes?: Record<string, import('./github.js').Route>, stored?: Record<string, string>, token?: string | null }} [options] Saved token, other stored values, GitHub answers, color scheme and Mermaid.
  */
-export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, token = TOKEN } = {}) {
+export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, stored = {}, token = TOKEN } = {}) {
   const dom = new JSDOM(HTML, { url: 'https://may-journal.github.io/journey/' });
   const window = /** @type {Window & typeof globalThis} */ (/** @type {unknown} */ (dom.window));
   if (token) window.localStorage.setItem(TOKEN_KEY, token);
+  for (const [key, value] of Object.entries(stored)) window.localStorage.setItem(key, value);
   const scheme = { matches: dark, onchange: () => {} };
   window.matchMedia = /** @type {any} */ (() => scheme);
   const github = replay(routes);
@@ -106,7 +107,16 @@ export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, 
 export function slide(page, slider, value) {
   slider.value = String(value);
   slider.dispatchEvent(new page.window.Event('input'));
-  slider.dispatchEvent(new page.window.Event('change'));
+  changed(page, slider);
+}
+
+/**
+ * Fires a change event, as the browser does after a viewer's edit.
+ * @param {Page} page The page.
+ * @param {HTMLElement} el The changed control.
+ */
+export function changed(page, el) {
+  el.dispatchEvent(new page.window.Event('change'));
 }
 
 /**

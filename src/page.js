@@ -15,6 +15,7 @@ import {
 } from './journey.js';
 
 export const TOKEN_KEY = 'journey.token';
+export const HIDDEN_KEY = 'journey.hiddenRepos';
 export const SELECTED = 'selected';
 export const LINKS = { doc: 'Doc', test: 'Test' };
 const LIMIT = 6;
@@ -48,6 +49,8 @@ export function start({ fetchImpl, mermaid, window }) {
   const ui = elements(document);
   const dark = window.matchMedia('(prefers-color-scheme: dark)');
   let token = localStorage.getItem(TOKEN_KEY);
+  /** @type {Set<string>} Repos the viewer unchecked. */
+  const hidden = new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? '[]'));
   let run = 0;
   let renders = 0;
   /** @type {import('./journey.js').Linked[]} */
@@ -113,6 +116,7 @@ export function start({ fetchImpl, mermaid, window }) {
     for (const failed of results.filter((r) => r.error)) {
       ui.errors.append(card(`${failed.repo}: ${failed.error} Its requirements are left out.`));
     }
+    ui.repos.replaceChildren(...results.filter((r) => r.docs.length).map(({ repo }) => repoBox(repo)));
     acceptances = flatten(results);
     const withDocs = results.filter((r) => r.docs.length).length;
     const reset = new Date(rate.reset * 1000).toLocaleTimeString();
@@ -122,12 +126,31 @@ export function start({ fetchImpl, mermaid, window }) {
     await rebuild();
   };
 
+  // One checkbox per repo with docs. Unchecking one stores it as hidden, so
+  // repos found later start checked.
+  const repoBox = (/** @type {string} */ repo) => {
+    const box = /** @type {HTMLInputElement} */ (make('input'));
+    box.type = 'checkbox';
+    box.value = repo;
+    box.checked = !hidden.has(repo);
+    box.onchange = () => {
+      if (box.checked) hidden.delete(repo);
+      else hidden.add(repo);
+      localStorage.setItem(HIDDEN_KEY, JSON.stringify([...hidden].sort()));
+      rebuild();
+    };
+    const label = make('label');
+    label.append(box, ` ${repo}`);
+    return label;
+  };
+
   const rebuild = async () => {
     selected = null;
     ui.details.hidden = true;
     const group = ui.group.value;
-    const groups = acceptances.map(groupsOf);
-    shown = acceptances.filter((_, i) => group === GROUP.both || groups[i].has(group));
+    const chosen = acceptances.filter((a) => !hidden.has(a.repo));
+    const groups = chosen.map(groupsOf);
+    shown = chosen.filter((_, i) => group === GROUP.both || groups[i].has(group));
     const neither = groups.filter((g) => !g.size).length;
     ui.groupNote.textContent = `${neither} acceptances fit neither group, so they show only under Both.`;
     graph = buildGraph(shown);
