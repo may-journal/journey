@@ -12,8 +12,6 @@ acceptances placed in App users or Developers
 
 acceptances in the fetched docs
 
-Source: `src/journey.js:452`
-
 ## Requirements
 
 - 0005.1

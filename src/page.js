@@ -16,7 +16,7 @@ import {
 
 export const TOKEN_KEY = 'journey.token';
 export const SELECTED = 'selected';
-export const LINKS = { doc: 'Doc', source: 'Source', test: 'Test' };
+export const LINKS = { doc: 'Doc', test: 'Test' };
 const LIMIT = 6;
 // Mermaid names each node's group flowchart-<key>-<n>, after the SVG's own ID.
 const NODE_ID = /^.*flowchart-(\w+)-\d+$/;
@@ -217,7 +217,6 @@ export function start({ fetchImpl, mermaid, window }) {
       }
       const foot = row();
       foot.append(link(a.url, LINKS.doc));
-      if (a.source) foot.append(link(a.source, LINKS.source));
       foot.append(link(a.test, LINKS.test));
       const li = make('li');
       li.append(head, dl, foot);

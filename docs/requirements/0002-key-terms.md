@@ -12,14 +12,12 @@ clause parts that give a key term
 
 clause parts in the fetched docs
 
-Source: `src/journey.js:114`
-
 ## Requirements
 
 - 0002.1
   - Given Viewer has a requirement doc
     - When the page reads it
-      - Then each acceptance keeps its ID, line, Source and clause texts, and a doc without a heading goes by its path
+      - Then each acceptance keeps its ID, line and clause texts, and a doc without a heading goes by its path
 - 0002.2
   - Given Viewer has a clause joined by commas or "and"
     - When the page splits it
