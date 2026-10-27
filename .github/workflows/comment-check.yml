@@ -2,13 +2,17 @@
 # and org-settings opens a PR in each repo whose copy differs. Edit it there.
 # Org required workflows skip comment events, so each repo carries this caller.
 # It replies once to a failing comment from anyone but fitness's known bots,
-# and turns that reply into a passing note once the comment is fixed.
+# and turns that reply into a passing note once the comment is fixed. A
+# submitted review is judged in one job, so ten review comments bill one
+# minute; an edited review comment is judged alone.
 name: Comment check
 on:
   issue_comment:
     types: [created, edited]
+  pull_request_review:
+    types: [submitted]
   pull_request_review_comment:
-    types: [created, edited]
+    types: [edited]
   workflow_dispatch:
 jobs:
   comment-check:
