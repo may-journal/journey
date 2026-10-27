@@ -1,5 +1,4 @@
 ---
-relatedConfigurations: ["../workflows/issue-check.yml"]
 name: Epic
 about: A larger goal split into Plans, listed in the order they run.
 title: "[Epic] Short name of the goal"
