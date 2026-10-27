@@ -161,7 +161,7 @@ export const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 // The same doc as SYNC in Biome 2.6's layout: front matter, two-space nesting
 // and a Measurement whose lone `-` is not an acceptance. Its IDs sit on lines 19 and 23.
 export const NESTED = `---
-relatedConfigurations: ["../../vitest.config.js"]
+title: Sync notes
 ---
 
 # 0001 Sync
