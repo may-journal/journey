@@ -1,7 +1,8 @@
 # Shared by every may-journal repo. may-journal/.github holds the source copy,
 # and org-settings opens a PR in each repo whose copy differs. Edit it there.
 # Org required workflows skip issue events, so each repo carries this caller.
-# It checks every issue against its template, plans and the other kinds alike.
+# It checks every issue against its template, plans and the other kinds alike,
+# and in the same job notes when a new issue resembles an older one.
 name: Issue check
 on:
   issues:
