@@ -157,3 +157,33 @@ export function press(page, key, name) {
  * @returns {Promise<void>} Resolves after pending work.
  */
 export const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
+
+// The same doc as SYNC in Biome 2.6's layout: front matter, two-space nesting
+// and a Measurement whose lone `-` is not an acceptance. Its IDs sit on lines 19 and 23.
+export const NESTED = `---
+title: Sync notes
+---
+
+# 0001 Sync
+
+## Measurement
+
+things saved
+
+-
+
+things edited
+
+Source: \`src/sync.js:7\`
+
+## Requirements
+
+- 0001.1
+  - Given Writer has no network
+    - When ${EDIT}
+      - Then it is saved locally
+- 0001.2
+  - Given Writer has no network, and a full disk
+    - When ${EDIT}
+      - Then the app warns
+`;
