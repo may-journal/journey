@@ -1,16 +1,18 @@
-# Shared by every may-journal repo. may-journal/.github holds the source copy,
-# and org-settings opens a PR in each repo whose copy differs. Edit it there.
-# Org required workflows skip comment events, so each repo carries this caller.
-# It replies once to a failing comment from anyone but fitness's known bots,
-# and turns that reply into a passing note once the comment is fixed. A
-# submitted review is judged in one job, so ten review comments bill one
-# minute; an edited review comment is judged alone.
+# may-journal/.github holds the source copy, and org-settings opens a PR
+# wherever a repo's copy differs, so edit it there. Org required workflows
+# skip comment events, so each repo carries this caller, which replies once
+# to a failing comment.
 name: Comment check
 on:
+  # The reply turns into a passing note once the comment is fixed, and
+  # fitness's known bots are skipped.
   issue_comment:
     types: [created, edited]
+  # A submitted review is judged in one job, so ten review comments bill
+  # one minute.
   pull_request_review:
     types: [submitted]
+  # An edited review comment is judged on its own.
   pull_request_review_comment:
     types: [edited]
   workflow_dispatch:

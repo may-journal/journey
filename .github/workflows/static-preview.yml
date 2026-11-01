@@ -1,14 +1,15 @@
-# Synced to each static-site repo that opts in through settings/repo-files.json.
-# may-journal/.github holds the source copy in templates/static-site; edit it there.
-# It is synced whole, since a public repo cannot call a private repo's workflow.
-# A repo's own Pages workflow builds the site, uploads it as an artifact, and
-# calls this file. It publishes the build to the gh-pages branch, which
-# GitHub Pages serves: main at the root, and each pull request under
-# pr/<number>/, with one comment on the pull request linking its preview.
-# Closing a pull request removes its folder. A fork's pull request gets a
-# read-only token, so it gets no preview. The caller grants contents and
-# pull-requests write and pages read, and calls it on push to main and on
-# pull_request opened, synchronize, reopened and closed.
+# may-journal/.github holds the source copy in templates/static-site and syncs
+# it whole to each static site that opts in, so edit it there. A public repo
+# cannot call a private repo's workflow, which is why it is synced whole.
+
+# A site's Pages workflow uploads its build and calls this file, which
+# publishes main at the root and each pull request under pr/<number>/. Each
+# pull request gets one comment linking its preview, and closing it removes
+# the folder.
+
+# A fork's pull request gets a read-only token, so it gets no preview. The
+# caller grants contents and pull-requests write and pages read, on push to
+# main and on pull_request opened, synchronize, reopened and closed.
 name: Static preview
 
 on:
