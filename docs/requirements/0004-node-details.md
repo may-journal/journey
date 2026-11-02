@@ -2,7 +2,7 @@
 
 ## Why
 
-I can go from any term in the journey to the acceptances, docs, code and tests behind it.
+I can go from any term in the journey to the acceptances, docs, code and tests behind that term.
 
 ## Measurement
 

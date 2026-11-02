@@ -2,7 +2,7 @@
 
 ## Why
 
-I can read the app journey without tooling acceptances swamping it, or the tooling journey alone.
+I can read the app journey without tooling acceptances swamping it, or read the tooling journey alone.
 
 ## Measurement
 

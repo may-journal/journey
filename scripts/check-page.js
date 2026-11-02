@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-// Serves the repo as Pages would, opens the page in headless Chrome with a
-// real token, waits for real Mermaid to draw, taps a node, and saves light
-// and dark screenshots. Usage, inputs and outputs are in README.md.
+// Serves the repo as Pages would and drives the page in headless Chrome with a real token.
+// It taps a node and saves light and dark screenshots; README.md has usage, inputs and outputs.
 
 import { spawn } from 'node:child_process';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -30,7 +29,7 @@ const server = createServer(async (request, response) => {
   }
 });
 await new Promise((ok) => server.listen(0, '127.0.0.1', () => ok(undefined)));
-const address = /** @type {import('node:net').AddressInfo} */ (server.address());
+const address = server.address();
 const pageUrl = `http://127.0.0.1:${address.port}/`;
 
 const profile = join(out, 'profile');
@@ -56,31 +55,29 @@ ws.addEventListener('message', (event) => {
   pending.get(message.id)?.(message);
   pending.delete(message.id);
 });
-const send = (/** @type {string} */ method, params = {}, /** @type {string} */ sessionId = '') =>
+const send = (method, params = {}, sessionId = '') =>
   new Promise((ok, no) => {
     const id = ++nextId;
-    pending.set(id, (/** @type {any} */ m) =>
-      m.error ? no(new Error(`${method}: ${m.error.message}`)) : ok(m.result)
-    );
+    pending.set(id, (m) => (m.error ? no(new Error(`${method}: ${m.error.message}`)) : ok(m.result)));
     ws.send(JSON.stringify({ id, method, params, ...(sessionId && { sessionId }) }));
   });
 
 const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
 const { sessionId } = await send('Target.attachToTarget', { flatten: true, targetId });
-const page = (/** @type {string} */ method, params = {}) => send(method, params, sessionId);
-const evaluate = async (/** @type {string} */ expression) => {
+const page = (method, params = {}) => send(method, params, sessionId);
+const evaluate = async (expression) => {
   const reply = await page('Runtime.evaluate', { awaitPromise: true, expression, returnByValue: true });
   return reply.exceptionDetails ? `error: ${reply.exceptionDetails.text}` : reply.result.value;
 };
-const wait = (/** @type {number} */ ms) => new Promise((ok) => setTimeout(ok, ms));
-const until = async (/** @type {string} */ expression, /** @type {number} */ seconds) => {
+const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
+const until = async (expression, seconds) => {
   for (let i = 0; i < seconds * 2; i++) {
     if (await evaluate(expression)) return true;
     await wait(500);
   }
   return false;
 };
-const shot = async (/** @type {string} */ name, /** @type {number} */ width, /** @type {string} */ scheme) => {
+const shot = async (name, width, scheme) => {
   await page('Emulation.setDeviceMetricsOverride', { deviceScaleFactor: 2, height: 900, mobile: width < 600, width });
   await page('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: scheme }] });
   await wait(1500);
@@ -88,7 +85,6 @@ const shot = async (/** @type {string} */ name, /** @type {number} */ width, /**
   await writeFile(join(out, name), Buffer.from(data, 'base64'));
 };
 
-/** @type {Record<string, unknown>} */
 const report = {};
 try {
   await page('Page.enable');

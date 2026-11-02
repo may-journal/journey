@@ -23,7 +23,7 @@ test('0002.1 each acceptance keeps its ID, line and clause texts at either inden
   });
   const nested = parseDoc(NESTED);
   expect(nested.acceptances.map((a) => a.line)).toEqual([19, 23]);
-  const unlined = (/** @type {import('../src/journey.js').Acceptance} */ a) => ({ ...a, line: 0 });
+  const unlined = (a) => ({ ...a, line: 0 });
   expect(nested.acceptances.map(unlined)).toEqual(doc.acceptances.slice(0, 2).map(unlined));
   const bare = { ...parseDoc('- 0001.1\n'), path: 'docs/requirements/README.md', url: 'u' };
   expect(flatten([{ docs: [bare], repo: 'x' }])[0].doc).toBe(bare.path);
