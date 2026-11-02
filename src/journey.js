@@ -1,5 +1,4 @@
-// The journey core: it parses requirement docs, reduces clauses to key terms,
-// builds the term graph and its Mermaid text, and fetches docs from GitHub.
+// The journey core parses requirement docs, builds the term graph and its Mermaid text, and fetches docs.
 // It touches no DOM, so the page and the tests share it unchanged.
 
 export const ORG = 'may-journal';
@@ -9,9 +8,6 @@ const HEADING = /^#\s+(\d{4})\s+(.+?)\s*$/;
 const ACCEPTANCE = /^\s*-\s+(\d{4}\.\d+)\s*$/;
 const CLAUSE = /^\s*-\s+(Given|When|Then)\s+(.+?)\s*$/;
 
-/** @typedef {'given' | 'when' | 'then'} Kind */
-
-/** @type {Kind[]} */
 export const KINDS = ['given', 'when', 'then'];
 const [GIVEN, WHEN, THEN] = KINDS;
 
@@ -19,23 +15,10 @@ const [GIVEN, WHEN, THEN] = KINDS;
 export const ERROR = { HTTP: 'http', RATE: 'rate', TOKEN: 'token' };
 
 /**
- * @typedef {object} Acceptance
- * @property {string} id The acceptance ID, such as 0001.1.
- * @property {number} line The 1-based line of the ID.
- * @property {string[]} givens Given clause texts.
- * @property {string[]} whens When clause texts.
- * @property {string[]} thens Then clause texts.
- */
-
-/**
  * Parses one requirement doc into its ID, name and acceptances.
- * @param {string} markdown The doc's text.
- * @returns {{ acceptances: Acceptance[], id: string | null, name: string | null }} The parsed doc.
  */
 export function parseDoc(markdown) {
-  /** @type {ReturnType<typeof parseDoc>} */
   const doc = { acceptances: [], id: null, name: null };
-  /** @type {Acceptance | null} */
   let current = null;
   markdown.split(/\r?\n/).forEach((line, index) => {
     const heading = !doc.id && line.match(HEADING);
@@ -58,8 +41,6 @@ export function parseDoc(markdown) {
 
 /**
  * Splits a compound clause on commas and "and", dropping code spans.
- * @param {string} text One clause.
- * @returns {string[]} Its parts.
  */
 export function splitClause(text) {
   return text
@@ -85,8 +66,6 @@ const FILLER = new Set([
 
 /**
  * Lowercases a clause part into plain words, without possessives or numbers.
- * @param {string} part A clause part.
- * @returns {string[]} Its words.
  */
 export function words(part) {
   return part
@@ -105,9 +84,6 @@ export function words(part) {
  * Reduces one clause part to its key term. Given and Then keep the first word
  * left after filler and pronouns; When skips a leading "the noun" to its verb.
  * A "not" before the term keeps the meaning, as not-<term>.
- * @param {string} part A clause part.
- * @param {Kind} kind The clause kind.
- * @returns {string | null} The key term, or null when only filler is left.
  */
 export function keyTerm(part, kind) {
   const all = words(part);
@@ -119,9 +95,6 @@ export function keyTerm(part, kind) {
 
 /**
  * Key terms of every part of every clause of one kind, without repeats.
- * @param {string[]} clauses Clause texts.
- * @param {Kind} kind Their kind.
- * @returns {string[]} The key terms.
  */
 export function termsOf(clauses, kind) {
   const terms = new Set();
@@ -135,35 +108,13 @@ export function termsOf(clauses, kind) {
 }
 
 /**
- * @typedef {object} TermNode
- * @property {string} key Mermaid node ID.
- * @property {Kind} kind Clause kind.
- * @property {string} term Key term.
- * @property {number} count Acceptances behind it.
- * @property {number[]} acceptances Indexes of those acceptances.
- */
-
-/**
- * @typedef {object} Edge
- * @property {string} from Source node key.
- * @property {string} to Target node key.
- * @property {number} weight Acceptances carrying it.
- */
-
-/** @typedef {{ edges: Map<string, Edge>, nodes: Map<string, TermNode> }} Graph */
-
-/**
  * Builds the term graph. A node is a kind and term with the acceptances
  * behind it; edges run Given to When to Then, weighted by acceptance count.
- * @param {Pick<Acceptance, 'givens' | 'whens' | 'thens'>[]} acceptances The acceptances.
- * @returns {Graph} The graph.
  */
 export function buildGraph(acceptances) {
-  /** @type {Map<string, TermNode>} */
   const nodes = new Map();
-  /** @type {Map<string, Edge>} */
   const edges = new Map();
-  const node = (/** @type {Kind} */ kind, /** @type {string} */ term, /** @type {number} */ index) => {
+  const node = (kind, term, index) => {
     const key = `${kind[0]}_${term.replace(/-/g, '_')}`;
     const entry = nodes.get(key) ?? { acceptances: [], count: 0, key, kind, term };
     nodes.set(key, entry);
@@ -171,7 +122,7 @@ export function buildGraph(acceptances) {
     entry.acceptances.push(index);
     return key;
   };
-  const link = (/** @type {string} */ from, /** @type {string} */ to) => {
+  const link = (from, to) => {
     const key = `${from}>${to}`;
     const edge = edges.get(key) ?? { from, to, weight: 0 };
     edges.set(key, edge);
@@ -190,20 +141,16 @@ export function buildGraph(acceptances) {
 // Mermaid shapes by kind: Given rounded, When hexagon, Then box. A Map, since
 // an object with a `then` key would read as a promise.
 const SHAPES = new Map([
-  [GIVEN, (/** @type {string} */ label) => `("${label}")`],
-  [WHEN, (/** @type {string} */ label) => `{{"${label}"}}`],
-  [THEN, (/** @type {string} */ label) => `["${label}"]`],
+  [GIVEN, (label) => `("${label}")`],
+  [WHEN, (label) => `{{"${label}"}}`],
+  [THEN, (label) => `["${label}"]`],
 ]);
-const byKind = (/** @type {TermNode} */ a, /** @type {TermNode} */ b) => KINDS.indexOf(a.kind) - KINDS.indexOf(b.kind);
-const byCount = (/** @type {TermNode} */ a, /** @type {TermNode} */ b) =>
-  b.count - a.count || byKind(a, b) || a.term.localeCompare(b.term);
+const byKind = (a, b) => KINDS.indexOf(a.kind) - KINDS.indexOf(b.kind);
+const byCount = (a, b) => b.count - a.count || byKind(a, b) || a.term.localeCompare(b.term);
 
 /**
  * Picks what to draw: nodes with at least `min` acceptances, the `cap`
  * largest of them, and the edges between them carrying at least `min`.
- * @param {Graph} graph The full graph.
- * @param {{ cap: number, min: number }} limits Node cap and minimum count.
- * @returns {{ edges: Edge[], nodes: TermNode[] }} The drawn part.
  */
 export function selectGraph(graph, { cap, min }) {
   const nodes = [...graph.nodes.values()]
@@ -220,8 +167,6 @@ export function selectGraph(graph, { cap, min }) {
 /**
  * Writes deterministic Mermaid flowchart text, left to right, with edge
  * widths scaled to their weight.
- * @param {{ edges: Edge[], nodes: TermNode[] }} selected The drawn part.
- * @returns {string} Mermaid text.
  */
 export function toMermaid({ edges, nodes }) {
   const lines = ['flowchart LR'];
@@ -238,11 +183,6 @@ export function toMermaid({ edges, nodes }) {
 
 /** An error from GitHub, with its kind and, for a rate limit, its reset. */
 export class FetchError extends Error {
-  /**
-   * @param {string} kind One of ERROR's values.
-   * @param {string} message What to tell the viewer.
-   * @param {number} [reset] Unix seconds when the rate limit resets.
-   */
   constructor(kind, message, reset) {
     super(message);
     this.kind = kind;
@@ -253,9 +193,6 @@ export class FetchError extends Error {
 /**
  * Turns a failed response into a bad-token, rate-limit or plain error. A
  * secondary limit sends Retry-After instead of a used-up remaining count.
- * @param {number} status HTTP status.
- * @param {Headers} headers Response headers.
- * @returns {FetchError} The error.
  */
 export function responseError(status, headers) {
   if (status === 401) return new FetchError(ERROR.TOKEN, 'GitHub rejected the token. It may be wrong or expired.');
@@ -270,8 +207,6 @@ export function responseError(status, headers) {
 
 /**
  * Decodes the contents API's base64 into UTF-8 text.
- * @param {string} content Base64 with line breaks.
- * @returns {string} The text.
  */
 export function decodeBase64(content) {
   const bytes = Uint8Array.from(atob(content.replace(/\s/g, '')), (c) => c.charCodeAt(0));
@@ -281,19 +216,13 @@ export function decodeBase64(content) {
 /**
  * A gate that lets at most `limit` calls run at once, however they nest.
  * After `halt(error)`, waiting calls reject with that error and never run.
- * @param {number} limit Calls in flight.
  */
 export function gate(limit) {
   let running = 0;
-  /** @type {(() => void)[]} */
   const waiting = [];
-  /** @type {unknown} */
   let halted = null;
   /**
    * Runs `fn` once a slot is free.
-   * @template R
-   * @param {() => Promise<R>} fn The call.
-   * @returns {Promise<R>} Its result.
    */
   const run = async (fn) => {
     if (running >= limit) await new Promise((resolve) => waiting.push(() => resolve(undefined)));
@@ -306,25 +235,21 @@ export function gate(limit) {
       waiting.shift()?.();
     }
   };
-  const halt = (/** @type {unknown} */ error) => {
+  const halt = (error) => {
     halted = error;
   };
   return { halt, run };
 }
 
-/** @typedef {{ limit: number, remaining: number, reset: number }} Rate */
-
 /**
  * A GitHub REST reader for one token. Each answer reports its rate headers.
- * @param {{ fetchImpl: typeof fetch, onRate: (rate: Rate) => void, token: string }} options Fetch, rate callback and token.
- * @returns {(url: string, allow404?: boolean) => Promise<any>} A GET that returns JSON, or null for an allowed 404.
  */
 export function makeClient({ fetchImpl, onRate, token }) {
   return async (url, allow404 = false) => {
     const response = await fetchImpl(url, {
       headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}` },
     });
-    const header = (/** @type {string} */ name) => Number(response.headers.get(`x-ratelimit-${name}`));
+    const header = (name) => Number(response.headers.get(`x-ratelimit-${name}`));
     onRate({ limit: header('limit'), remaining: header('remaining'), reset: header('reset') });
     if (allow404 && response.status === 404) return null;
     if (!response.ok) throw responseError(response.status, response.headers);
@@ -333,38 +258,24 @@ export function makeClient({ fetchImpl, onRate, token }) {
 }
 
 /**
- * @typedef {object} RepoResult
- * @property {string} repo Repo name.
- * @property {(ReturnType<typeof parseDoc> & { path: string, url: string })[]} docs Its requirement docs.
- * @property {string} [error] Why it failed to load.
- */
-
-/**
  * Fetches every unarchived org repo's docs/requirements/*.md. A bad token or
  * a rate limit stops the run; any other failure stays with its repo.
- * @param {{ get: ReturnType<typeof makeClient>, limit: number }} options The GitHub reader and calls in flight.
- * @returns {Promise<RepoResult[]>} One result per repo, sorted by name.
  */
 export async function fetchJourney({ get, limit }) {
-  /** @type {{ archived: boolean, name: string }[]} */
   const repos = [];
   for (let page = 1; ; page++) {
     const batch = await get(`${API}/orgs/${ORG}/repos?type=all&per_page=100&page=${page}`);
-    repos.push(...batch.filter((/** @type {{ archived: boolean }} */ r) => !r.archived));
+    repos.push(...batch.filter((r) => !r.archived));
     if (batch.length < 100) break;
   }
   repos.sort((a, b) => a.name.localeCompare(b.name));
   const { halt, run } = gate(limit);
-  const limited = (/** @type {string} */ url, allow404 = false) => run(() => get(url, allow404));
-  /** @type {(repo: typeof repos[number]) => Promise<RepoResult>} */
+  const limited = (url, allow404 = false) => run(() => get(url, allow404));
   const load = async (repo) => {
     try {
       const listing = await limited(`${API}/repos/${ORG}/${repo.name}/contents/docs/requirements`, true);
       if (!listing) return { docs: [], repo: repo.name };
-      /** @type {{ html_url: string, name: string, path: string, type: string, url: string }[]} */
-      const files = listing.filter(
-        (/** @type {{ name: string, type: string }} */ f) => f.type === 'file' && f.name.endsWith('.md')
-      );
+      const files = listing.filter((f) => f.type === 'file' && f.name.endsWith('.md'));
       const docs = await Promise.all(
         files.map(async (file) => {
           const body = await limited(file.url);
@@ -373,7 +284,7 @@ export async function fetchJourney({ get, limit }) {
       );
       return { docs, repo: repo.name };
     } catch (error) {
-      const failure = /** @type {FetchError} */ (error);
+      const failure = error;
       if (failure.kind === ERROR.TOKEN || failure.kind === ERROR.RATE) {
         halt(failure);
         throw failure;
@@ -385,15 +296,8 @@ export async function fetchJourney({ get, limit }) {
 }
 
 /**
- * @typedef {Acceptance & { doc: string, repo: string, test: string, url: string }} Linked
- */
-
-/**
- * GitHub code search for an acceptance ID outside the requirement docs, which
- * finds the one test named for it without spending the viewer's API budget.
- * @param {string} repo Repo name.
- * @param {string} id Acceptance ID.
- * @returns {string} The search page URL.
+ * Builds a GitHub code search for an acceptance ID outside the requirement docs.
+ * It finds the one test named for the ID without spending the viewer's API budget.
  */
 export function testSearch(repo, id) {
   const query = `repo:${ORG}/${repo} "${id}" -path:docs/requirements`;
@@ -402,11 +306,8 @@ export function testSearch(repo, id) {
 
 /**
  * Flattens fetched docs into acceptances that carry their repo and links.
- * @param {RepoResult[]} results Fetched repos.
- * @returns {Linked[]} Every acceptance.
  */
 export function flatten(results) {
-  /** @type {Linked[]} */
   const out = [];
   for (const result of results) {
     for (const doc of result.docs) {
@@ -424,9 +325,8 @@ export function flatten(results) {
   return out;
 }
 
-// Actor groups. An acceptance belongs to a group when one of its Given key
-// terms is in that group's list, or, for app users, when a Given is spoken
-// as "I", "you" or "we": requirement docs write the app's user that way.
+// An acceptance belongs to an actor group when one of its Given key terms is in that group's list.
+// For app users, a Given spoken as "I", "you" or "we" also counts, as requirement docs write that way.
 export const GROUP = { both: 'both', developers: 'developers', users: 'users' };
 export const GROUP_TERMS = {
   [GROUP.developers]: new Set('agent app contributor designer developer maintainer owner plugin'.split(' ')),
@@ -436,8 +336,6 @@ const SPEAKER = /^(i|you|we)\b/i;
 
 /**
  * The actor groups an acceptance belongs to, from its Given clauses.
- * @param {Pick<Acceptance, 'givens'>} acceptance The acceptance.
- * @returns {Set<string>} Its groups; empty when it fits neither.
  */
 export function groupsOf({ givens }) {
   const groups = new Set();

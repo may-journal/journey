@@ -2,7 +2,7 @@
 
 ## Why
 
-I can see which actors, actions and outcomes repos share, since each clause shrinks to one comparable word.
+I can see which actors, actions and outcomes repos share, since each clause shrinks to a single comparable word.
 
 ## Measurement
 

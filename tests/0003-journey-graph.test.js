@@ -5,7 +5,7 @@ import { drawnNodes, fakeMermaid, KEY, openPage, slide } from './page.js';
 
 const RUN = 'they run fitness';
 
-const clauses = (/** @type {string} */ given, /** @type {string} */ when, /** @type {string} */ then) => ({
+const clauses = (given, when, then) => ({
   givens: [given],
   thens: [then],
   whens: [when],
@@ -92,7 +92,7 @@ test('0003.5 a graph wider than a phone keeps its full width and scrolls sideway
   expect(mermaid.configs[0].flowchart).toEqual({ useMaxWidth: false });
   const style = page.window.getComputedStyle(page.ui.diagram);
   expect(style.overflowX).toBe('auto');
-  const svg = /** @type {Element} */ (page.ui.diagram.querySelector('svg'));
+  const svg = page.ui.diagram.querySelector('svg');
   expect(page.window.getComputedStyle(svg).maxWidth).toBe('none');
   expect(page.window.document.querySelector('meta[name="viewport"]')?.getAttribute('content')).toBe(
     'width=device-width, initial-scale=1'

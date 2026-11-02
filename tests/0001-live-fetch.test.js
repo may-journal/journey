@@ -4,8 +4,7 @@ import { APP, drawnNodes, ORG, openPage, TOKEN, TOOLS } from './page.js';
 
 const RATE_MESSAGE = "GitHub's rate limit is used up. It resets at ";
 
-const loaded = (/** @type {import('./page.js').Page} */ page) =>
-  vi.waitFor(() => expect(page.ui.status.textContent).toContain('acceptances'));
+const loaded = (page) => vi.waitFor(() => expect(page.ui.status.textContent).toContain('acceptances'));
 
 test('0001.1 with no token the page asks for one and fetches nothing', () => {
   const page = openPage({ token: null });

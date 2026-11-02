@@ -1,6 +1,5 @@
-// Opens the real index.html in jsdom and starts the page the way its module
-// script does, with replayed GitHub answers and a stand-in for Mermaid. The
-// stand-in draws one SVG group per node, shaped like Mermaid's own output.
+// Opens the real index.html in jsdom and starts the page as its module script does.
+// It uses replayed GitHub answers and a Mermaid stand-in drawing one SVG group per node.
 
 import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
@@ -49,12 +48,9 @@ export const ORG = {
 
 /**
  * A Mermaid stand-in that records each call and answers with node groups.
- * @returns {{ configs: any[], initialize: (config: object) => void, render: (id: string, text: string) => Promise<{ svg: string }>, texts: string[] }} The stand-in.
  */
 export function fakeMermaid() {
-  /** @type {any[]} */
   const configs = [];
-  /** @type {string[]} */
   const texts = [];
   return {
     configs,
@@ -76,18 +72,17 @@ export function fakeMermaid() {
 }
 
 /**
- * Opens the page.
- * @param {{ dark?: boolean, mermaid?: ReturnType<typeof fakeMermaid>, routes?: Record<string, import('./github.js').Route>, token?: string | null }} [options] Saved token, GitHub answers, color scheme and Mermaid.
+ * Opens the page with replayed GitHub answers and the fake Mermaid.
  */
 export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, token = TOKEN } = {}) {
   const dom = new JSDOM(HTML, { url: 'https://may-journal.github.io/journey/' });
-  const window = /** @type {Window & typeof globalThis} */ (/** @type {unknown} */ (dom.window));
+  const window = dom.window;
   if (token) window.localStorage.setItem(TOKEN_KEY, token);
   const scheme = { matches: dark, onchange: () => {} };
-  window.matchMedia = /** @type {any} */ (() => scheme);
+  window.matchMedia = () => scheme;
   const github = replay(routes);
   start({ fetchImpl: github.fetchImpl, mermaid, window });
-  const setDark = (/** @type {boolean} */ on) => {
+  const setDark = (on) => {
     scheme.matches = on;
     scheme.onchange();
   };
@@ -95,13 +90,8 @@ export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, 
   return { github, mermaid, saved, setDark, ui: elements(window.document), window };
 }
 
-/** @typedef {ReturnType<typeof openPage>} Page */
-
 /**
  * Sets a slider and fires its input and change events, as dragging it does.
- * @param {Page} page The page.
- * @param {HTMLInputElement} slider The slider.
- * @param {number} value New value.
  */
 export function slide(page, slider, value) {
   slider.value = String(value);
@@ -110,41 +100,27 @@ export function slide(page, slider, value) {
 }
 
 /**
- * The drawn nodes.
- * @param {Page} page The page.
- * @returns {Element[]} Their SVG groups.
+ * Lists the nodes the diagram has drawn.
  */
 export const drawnNodes = (page) => [...page.ui.diagram.querySelectorAll(NODES)];
 
 /**
  * The drawn node with this Mermaid key.
- * @param {Page} page The page.
- * @param {string} key Node key, such as g_writer.
- * @returns {Element} The SVG group.
  */
-export const nodeOf = (page, key) =>
-  /** @type {Element} */ (page.ui.diagram.querySelector(`${NODES}[id*="-flowchart-${key}-"]`));
+export const nodeOf = (page, key) => page.ui.diagram.querySelector(`${NODES}[id*="-flowchart-${key}-"]`);
 
 /**
  * Keys of the drawn nodes marked selected.
- * @param {Page} page The page.
- * @returns {string[]} Their group IDs.
  */
 export const selectedNodes = (page) => drawnNodes(page).filter((n) => n.classList.contains(SELECTED));
 
 /**
  * Taps a drawn node.
- * @param {Page} page The page.
- * @param {string} key Node key.
  */
 export const tap = (page, key) => nodeOf(page, key).dispatchEvent(new page.window.MouseEvent('click'));
 
 /**
  * Presses a key on a drawn node.
- * @param {Page} page The page.
- * @param {string} key Node key.
- * @param {string} name Key name, such as Enter.
- * @returns {boolean} Whether the page took the key.
  */
 export function press(page, key, name) {
   const event = new page.window.KeyboardEvent('keydown', { cancelable: true, key: name });
@@ -154,7 +130,6 @@ export function press(page, key, name) {
 
 /**
  * Waits until no answer or timer is pending.
- * @returns {Promise<void>} Resolves after pending work.
  */
 export const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 

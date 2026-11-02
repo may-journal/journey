@@ -5,11 +5,10 @@ import { APP, CHECK, EDIT, KEY, nodeOf, ORG, openPage, press, selectedNodes, set
 
 const FIRST = `${ORG_REPOS}1`;
 
-const drawn = (/** @type {import('./page.js').Page} */ page, /** @type {string} */ key) =>
-  vi.waitFor(() => expect(nodeOf(page, key)).not.toBeNull());
+const drawn = (page, key) => vi.waitFor(() => expect(nodeOf(page, key)).not.toBeNull());
 
-const links = (/** @type {Element} */ li) => [...li.querySelectorAll('a')].map((a) => [a.textContent, a.href]);
-const items = (/** @type {import('./page.js').Page} */ page) => page.ui.detailsList.querySelectorAll('li');
+const links = (li) => [...li.querySelectorAll('a')].map((a) => [a.textContent, a.href]);
+const items = (page) => page.ui.detailsList.querySelectorAll('li');
 
 test('0004.1 tapping a node lists its acceptances with doc and test links', async () => {
   const page = openPage();
@@ -58,7 +57,6 @@ test('0004.2 Enter or Space on a focused node lists its acceptances, and other k
 });
 
 test('0004.3 Refresh fetches every repo again and rebuilds the graph from the new docs', async () => {
-  /** @type {Record<string, import('./github.js').Route>} */
   const routes = { ...ORG };
   const page = openPage({ routes });
   await drawn(page, KEY.writer);
@@ -73,10 +71,8 @@ test('0004.3 Refresh fetches every repo again and rebuilds the graph from the ne
 });
 
 test('0004.4 only the newest load draws when Refresh is chosen during a load', async () => {
-  /** @type {() => void} */
   let release = () => {};
   const gate = new Promise((resolve) => (release = () => resolve(undefined)));
-  /** @type {Record<string, import('./github.js').Route>} */
   const routes = { ...ORG, [FIRST]: { ...ORG[FIRST], gate } };
   const page = openPage({ routes });
   routes[FIRST] = ORG[FIRST];
@@ -87,7 +83,6 @@ test('0004.4 only the newest load draws when Refresh is chosen during a load', a
   await settle();
   expect(page.mermaid.texts).toHaveLength(1);
 
-  /** @type {() => void} */
   let fail = () => {};
   const failing = new Promise((resolve) => (fail = () => resolve(undefined)));
   routes[FIRST] = { body: {}, gate: failing, status: 500 };
