@@ -2,15 +2,25 @@ import { expect, test, vi } from 'vitest';
 import { HIDDEN_KEY } from '../src/page.js';
 import { APP, changed, KEY, nodeOf, openPage, TOOLS } from './page.js';
 
-const boxes = (/** @type {import('./page.js').Page} */ page) =>
-  /** @type {HTMLInputElement[]} */ ([...page.ui.repos.querySelectorAll('[type=checkbox]')]);
+const boxes = (page) => [...page.ui.repos.querySelectorAll('[type=checkbox]')];
 
-const listed = async (/** @type {import('./page.js').Page} */ page) => {
+const listed = async (page) => {
   await vi.waitFor(() => expect(boxes(page)).toHaveLength(2));
   return boxes(page);
 };
 
-const toggle = (/** @type {import('./page.js').Page} */ page, /** @type {HTMLInputElement} */ box) => {
+const opened = async () => {
+  const page = openPage();
+  return { page, all: await listed(page) };
+};
+
+const expectAllChecked = (all) =>
+  expect(all.map((b) => [b.value, b.checked])).toEqual([
+    [APP, true],
+    [TOOLS, true],
+  ]);
+
+const toggle = (page, box) => {
   box.checked = !box.checked;
   changed(page, box);
 };
@@ -18,16 +28,15 @@ const toggle = (/** @type {import('./page.js').Page} */ page, /** @type {HTMLInp
 test('0006.1 every repo with docs gets a checkbox, all checked by default', async () => {
   const page = openPage();
   const all = await listed(page);
-  expect(all.map((b) => [b.value, b.checked])).toEqual([
-    [APP, true],
-    [TOOLS, true],
-  ]);
+  expectAllChecked(all);
   expect(page.ui.repos.textContent).toBe(' app tools');
 });
 
 test('0006.2 unchecking a repo removes its acceptances, and nodes left with none disappear', async () => {
-  const page = openPage();
-  const [app] = await listed(page);
+  const {
+    page,
+    all: [app],
+  } = await opened();
   await vi.waitFor(() => expect(nodeOf(page, KEY.writer)).not.toBeNull());
   toggle(page, app);
   await vi.waitFor(() => expect(nodeOf(page, KEY.writer)).toBeNull());
@@ -35,8 +44,10 @@ test('0006.2 unchecking a repo removes its acceptances, and nodes left with none
 });
 
 test('0006.3 changing a checkbox rebuilds the graph without a new fetch', async () => {
-  const page = openPage();
-  const [app] = await listed(page);
+  const {
+    page,
+    all: [app],
+  } = await opened();
   const calls = page.github.calls.length;
   toggle(page, app);
   toggle(page, app);
@@ -59,8 +70,5 @@ test('0006.4 the chosen repos stay in localStorage and are restored on open', as
 test('0006.5 a repo first seen after the choice was saved starts checked', async () => {
   const page = openPage({ stored: { [HIDDEN_KEY]: JSON.stringify(['elsewhere/old']) } });
   const all = await listed(page);
-  expect(all.map((b) => [b.value, b.checked])).toEqual([
-    [APP, true],
-    [TOOLS, true],
-  ]);
+  expectAllChecked(all);
 });

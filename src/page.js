@@ -115,8 +115,8 @@ export function start({ fetchImpl, mermaid, window }) {
 
   // One checkbox per repo with docs. Unchecking one stores it as hidden, so
   // repos found later start checked.
-  const repoBox = (/** @type {string} */ repo) => {
-    const box = /** @type {HTMLInputElement} */ (make('input'));
+  const repoBox = (repo) => {
+    const box = make('input');
     box.type = 'checkbox';
     box.value = repo;
     box.checked = !hidden.has(repo);

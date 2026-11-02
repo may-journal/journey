@@ -1,7 +1,3 @@
----
-relatedConfigurations: ["../../vitest.config.js"]
----
-
 # 0006 Repo Choice
 
 ## Why
@@ -15,8 +11,6 @@ acceptances drawn from the checked repos
 -
 
 acceptances in the fetched docs
-
-Source: `src/page.js:147`
 
 ## Requirements
 

@@ -73,7 +73,6 @@ export function fakeMermaid() {
 
 /**
  * Opens the page with replayed GitHub answers and the fake Mermaid.
- * @param {{ dark?: boolean, mermaid?: ReturnType<typeof fakeMermaid>, routes?: Record<string, import('./github.js').Route>, stored?: Record<string, string>, token?: string | null }} [options] Saved token, other stored values, GitHub answers, color scheme and Mermaid.
  */
 export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, stored = {}, token = TOKEN } = {}) {
   const dom = new JSDOM(HTML, { url: 'https://may-journal.github.io/journey/' });
@@ -103,8 +102,6 @@ export function slide(page, slider, value) {
 
 /**
  * Fires a change event, as the browser does after a viewer's edit.
- * @param {Page} page The page.
- * @param {HTMLElement} el The changed control.
  */
 export function changed(page, el) {
   el.dispatchEvent(new page.window.Event('change'));
