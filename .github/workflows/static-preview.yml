@@ -108,3 +108,6 @@ jobs:
           else
             gh api "repos/$OWNER/$REPO/issues/$NUMBER/comments" -f "body=$body" >/dev/null
           fi
+      - name: Report the preview outcome
+        if: always()
+        run: echo "Publishing ${TARGET} at ${SHA} finished with status ${{ job.status }}." >> "$GITHUB_STEP_SUMMARY"
