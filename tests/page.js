@@ -74,10 +74,11 @@ export function fakeMermaid() {
 /**
  * Opens the page with replayed GitHub answers and the fake Mermaid.
  */
-export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, token = TOKEN } = {}) {
+export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, stored = {}, token = TOKEN } = {}) {
   const dom = new JSDOM(HTML, { url: 'https://may-journal.github.io/journey/' });
   const window = dom.window;
   if (token) window.localStorage.setItem(TOKEN_KEY, token);
+  for (const [key, value] of Object.entries(stored)) window.localStorage.setItem(key, value);
   const scheme = { matches: dark, onchange: () => {} };
   window.matchMedia = () => scheme;
   const github = replay(routes);
@@ -96,7 +97,14 @@ export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, 
 export function slide(page, slider, value) {
   slider.value = String(value);
   slider.dispatchEvent(new page.window.Event('input'));
-  slider.dispatchEvent(new page.window.Event('change'));
+  changed(page, slider);
+}
+
+/**
+ * Fires a change event, as the browser does after a viewer's edit.
+ */
+export function changed(page, el) {
+  el.dispatchEvent(new page.window.Event('change'));
 }
 
 /**
