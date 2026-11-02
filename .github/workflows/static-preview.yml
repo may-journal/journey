@@ -76,7 +76,7 @@ jobs:
               mkdir -p "$PAGES/$TARGET"
               cp -R "$SITE/." "$PAGES/$TARGET/"
             fi
-            # Pages would run Jekyll on the branch without this file.
+            # Pages would run Jekyll on the branch without this file. cspell:words nojekyll
             touch "$PAGES/.nojekyll"
             git -C "$PAGES" add -A
             if git -C "$PAGES" diff --cached --quiet; then
