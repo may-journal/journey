@@ -2,7 +2,7 @@
 
 ## Why
 
-I can see every repo's requirements with my own token, and nothing private is ever published.
+I can see every repo's requirements with my own token, and nothing private gets published.
 
 ## Measurement
 

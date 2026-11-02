@@ -14,7 +14,7 @@ const CLOCK = `# 0003 Clock
             - Then it stops
 `;
 
-const choose = (/** @type {import('./page.js').Page} */ page, /** @type {string} */ group) => {
+const choose = (page, group) => {
   page.ui.group.value = group;
   page.ui.group.dispatchEvent(new page.window.Event('change'));
 };
@@ -33,7 +33,7 @@ const opened = async () => {
 
 test('0005.1 the filter offers App users, Developers and Both, with Both chosen', async () => {
   const page = await opened();
-  const options = [.../** @type {HTMLSelectElement} */ (/** @type {unknown} */ (page.ui.group)).options];
+  const options = [...page.ui.group.options];
   expect(options.map((o) => [o.value, o.textContent])).toEqual([
     [GROUP.both, 'Both'],
     [GROUP.users, 'App users'],

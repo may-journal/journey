@@ -25,15 +25,7 @@ export const NODES = 'g.node';
 export const THEME = { dark: 'dark', light: 'neutral' };
 
 /**
- * @typedef {object} Mermaid
- * @property {(config: object) => void} initialize Sets the theme and limits.
- * @property {(id: string, text: string) => Promise<{ svg: string }>} render Draws Mermaid text as SVG.
- */
-
-/**
  * Every element with an ID, by ID.
- * @param {Document} document The page.
- * @returns {Record<string, HTMLInputElement>} The elements; inputs share the type, so value reads need no cast.
  */
 export function elements(document) {
   return Object.fromEntries([...document.querySelectorAll('[id]')].map((el) => [el.id, el]));
@@ -41,7 +33,6 @@ export function elements(document) {
 
 /**
  * Starts the page in `window`.
- * @param {{ fetchImpl: typeof fetch, mermaid: Mermaid, window: Window }} options The page's window, fetch and Mermaid.
  */
 export function start({ fetchImpl, mermaid, window }) {
   const { document, localStorage } = window;
@@ -50,31 +41,28 @@ export function start({ fetchImpl, mermaid, window }) {
   let token = localStorage.getItem(TOKEN_KEY);
   let run = 0;
   let renders = 0;
-  /** @type {import('./journey.js').Linked[]} */
   let acceptances = [];
-  /** @type {import('./journey.js').Linked[]} The acceptances the filters keep, which the graph indexes. */
   let shown = [];
   let graph = buildGraph([]);
-  /** @type {string | null} */
   let selected = null;
 
-  const make = (/** @type {string} */ tag, /** @type {string} */ className = '', /** @type {string} */ text = '') => {
+  const make = (tag, className = '', text = '') => {
     const el = document.createElement(tag);
     el.className = className;
     el.textContent = text;
     return el;
   };
 
-  const card = (/** @type {string} */ text) => make('div', 'card', text);
+  const card = (text) => make('div', 'card', text);
   const row = () => make('div', 'row');
 
-  const show = (/** @type {boolean} */ asking) => {
+  const show = (asking) => {
     ui.tokenScreen.hidden = !asking;
     ui.app.hidden = asking;
     ui.actions.hidden = asking;
   };
 
-  const askToken = (/** @type {string} */ message) => {
+  const askToken = (message) => {
     localStorage.removeItem(TOKEN_KEY);
     token = null;
     run += 1;
@@ -92,16 +80,15 @@ export function start({ fetchImpl, mermaid, window }) {
     ui.status.textContent = "Loading every repo's requirements…";
     // Answers finish out of order, so the status keeps the lowest count left.
     const rate = { limit: 0, remaining: Number.POSITIVE_INFINITY, reset: 0 };
-    const onRate = (/** @type {import('./journey.js').Rate} */ r) => {
+    const onRate = (r) => {
       if (r.remaining <= rate.remaining) Object.assign(rate, r);
     };
     const get = makeClient({ fetchImpl, onRate, token: String(token) });
-    /** @type {import('./journey.js').RepoResult[]} */
     let results;
     try {
       results = await fetchJourney({ get, limit: LIMIT });
     } catch (error) {
-      const failure = /** @type {import('./journey.js').FetchError} */ (error);
+      const failure = error;
       if (mine !== run) return;
       if (failure.kind === ERROR.TOKEN) return askToken(`${failure.message} Paste another.`);
       ui.status.textContent = '';
@@ -172,7 +159,7 @@ export function start({ fetchImpl, mermaid, window }) {
     ui.diagram.innerHTML = svg;
     for (const el of ui.diagram.querySelectorAll(NODES)) {
       const key = el.id.replace(NODE_ID, '$1');
-      const node = /** @type {import('./journey.js').TermNode} */ (current.nodes.get(key));
+      const node = current.nodes.get(key);
       el.setAttribute('tabindex', '0');
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `${node.kind} ${node.term}, ${node.count} acceptances`);
@@ -182,8 +169,8 @@ export function start({ fetchImpl, mermaid, window }) {
         el.classList.add(SELECTED);
         showDetails(node);
       };
-      /** @type {HTMLElement} */ (el).onclick = open;
-      /** @type {HTMLElement} */ (el).onkeydown = (event) => {
+      el.onclick = open;
+      el.onkeydown = (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           open();
@@ -192,15 +179,15 @@ export function start({ fetchImpl, mermaid, window }) {
     }
   };
 
-  const link = (/** @type {string} */ href, /** @type {string} */ text) => {
-    const a = /** @type {HTMLAnchorElement} */ (make('a', '', text));
+  const link = (href, text) => {
+    const a = make('a', '', text);
     a.href = href;
     a.target = '_blank';
     a.rel = 'noopener';
     return a;
   };
 
-  const showDetails = (/** @type {import('./journey.js').TermNode} */ node) => {
+  const showDetails = (node) => {
     selected = node.key;
     ui.detailsTitle.textContent = `${node.kind} “${node.term}” · ${node.count} acceptances`;
     const items = node.acceptances.map((i) => {
@@ -208,11 +195,11 @@ export function start({ fetchImpl, mermaid, window }) {
       const head = row();
       head.append(link(a.url, `${a.repo} · ${a.id}`), a.doc);
       const dl = make('dl');
-      for (const [label, texts] of /** @type {[string, string[]][]} */ ([
+      for (const [label, texts] of [
         ['Given', a.givens],
         ['When', a.whens],
         ['Then', a.thens],
-      ])) {
+      ]) {
         for (const text of texts) dl.append(make('dt', '', label), make('dd', '', text));
       }
       const foot = row();

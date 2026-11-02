@@ -2,7 +2,7 @@
 
 ## Why
 
-I can read the whole org's requirements as one journey from actors through actions to outcomes.
+I can read the whole org's requirements as one journey that runs from actors through actions to outcomes.
 
 ## Measurement
 
