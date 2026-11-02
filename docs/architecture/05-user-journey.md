@@ -38,6 +38,7 @@ flowchart TB
     tap(6 Tap a term<br/>Req 0004):::action
     details[7 Acceptances with links<br/>Req 0004]:::screen
     group(8 Choose App users, Developers or Both<br/>Req 0005):::action
+    repos(9 Check the repos to show<br/>Req 0006):::action
 
     viewer --> token
     token --> fetch
@@ -48,6 +49,8 @@ flowchart TB
     graph -->|Refresh 0004| fetch
     graph --> group
     group --> graph
+    graph --> repos
+    repos --> graph
 
     classDef persona fill:#eef2ff,stroke:#6366f1,color:#312e81,stroke-width:2px
     classDef screen fill:#f8fafc,stroke:#64748b,color:#1e293b,stroke-width:2px
@@ -67,3 +70,4 @@ Numbers match the callout table.
 | 6   | The viewer taps or presses Enter on a term.        | Action  | Keyboard and touch both work.               |
 | 7   | Each acceptance shows its text, doc and test.      | Screen  | It leads to the code behind the term.       |
 | 8   | The viewer narrows the graph to one actor group.   | Action  | It rebuilds in memory, with no fetch.       |
+| 9   | The viewer checks only the repos they care about.  | Action  | The choice stays in that browser.           |
