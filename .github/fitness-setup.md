@@ -1,5 +1,7 @@
 # Fitness setup
 
+<!-- cspell:words fitnessrc -->
+
 may-journal/.github holds the source copy; org-settings syncs it by PR.
 
 ## Local hooks
