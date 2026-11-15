@@ -1,0 +1,21 @@
+# may-journal/.github holds the source copy, and org-settings opens a PR
+# wherever a repo's copy differs, so edit it there.
+
+# Dependabot writes none of what PR check asks for, so this completes its
+# pull requests: title, description, bump issue and changelog entry. The App
+# token starts the checks again; store AUTOMATION_APP_ID and
+# AUTOMATION_APP_KEY as Actions and Dependabot secrets.
+name: Dependabot PR
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+permissions:
+  contents: read
+jobs:
+  dependabot-pr:
+    # Only Dependabot's pull requests start a run.
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    uses: may-journal/fitness-runner/.github/workflows/dependabot-pr-reusable.yml@v1
+    secrets:
+      AUTOMATION_APP_ID: ${{ secrets.AUTOMATION_APP_ID }}
+      AUTOMATION_APP_KEY: ${{ secrets.AUTOMATION_APP_KEY }}
