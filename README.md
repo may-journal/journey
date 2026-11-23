@@ -16,6 +16,10 @@ The Show filter picks App users, Developers or Both, and Both is the default. An
 
 A checkbox per repo with docs limits the graph to the checked repos, and all start checked. The page keeps the unchecked repos in localStorage, so a repo found later starts checked.
 
+## Find
+
+The Find box marks each drawn term that contains the typed text, ignoring letter case, and dims the others. A note counts the matches, and the marks stay through every redraw until the box is empty.
+
 ## Package
 
 `src/journey.js` is also the package's one export, so other tools can reduce requirement docs the same way.

@@ -181,6 +181,14 @@
         stroke: var(--accent);
         stroke-width: 3px;
       }
+      #diagram .node.match :is(rect, path, polygon) {
+        stroke: var(--accent);
+        stroke-width: 3px;
+        stroke-dasharray: 6 3;
+      }
+      #diagram .node.dim {
+        opacity: 0.25;
+      }
       #details ul {
         list-style: none;
         padding: 0;
@@ -275,6 +283,8 @@
             </select>
           </label>
           <span id="groupNote" class="muted"></span>
+          <label>Find <input type="search" id="find" placeholder="a term" autocomplete="off" spellcheck="false" /></label>
+          <span id="findNote" class="muted" aria-live="polite"></span>
         </div>
         <fieldset id="repos" class="controls" aria-label="Repos to show"></fieldset>
         <div class="legend">
