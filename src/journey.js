@@ -108,8 +108,31 @@ export function termsOf(clauses, kind) {
 }
 
 /**
+ * Maps each plural term to its singular when both are among `terms`: the
+ * singular plus s or es, or its y swapped for ies. A chain folds to its root. A plural seen alone has no
+ * entry, so no word list is needed and lone words such as "passes" stay.
+ */
+export function foldPlurals(terms) {
+  const seen = new Set(terms);
+  const folds = new Map();
+  for (const term of seen) {
+    for (const plural of [`${term}s`, `${term}es`, term.replace(/y$/, 'ies')]) {
+      if (plural !== term && seen.has(plural)) folds.set(plural, term);
+    }
+  }
+  // A singular is shorter than its plural, so following a chain to its root always ends.
+  for (const [plural, term] of folds) {
+    let root = term;
+    while (folds.has(root)) root = folds.get(root);
+    folds.set(plural, root);
+  }
+  return folds;
+}
+
+/**
  * Builds the term graph. A node is a kind and term with the acceptances
  * behind it; edges run Given to When to Then, weighted by acceptance count.
+ * A plural term joins its singular of the same kind, counted once.
  */
 export function buildGraph(acceptances) {
   const nodes = new Map();
@@ -128,9 +151,11 @@ export function buildGraph(acceptances) {
     edges.set(key, edge);
     edge.weight += 1;
   };
-  acceptances.forEach((acceptance, index) => {
-    const [given, when, then] = KINDS.map((kind) =>
-      termsOf(acceptance[`${kind}s`], kind).map((term) => node(kind, term, index))
+  const termed = acceptances.map((acceptance) => KINDS.map((kind) => termsOf(acceptance[`${kind}s`], kind)));
+  const folds = KINDS.map((_, k) => foldPlurals(termed.flatMap((terms) => terms[k])));
+  termed.forEach((kinds, index) => {
+    const [given, when, then] = kinds.map((terms, k) =>
+      [...new Set(terms.map((term) => folds[k].get(term) ?? term))].map((term) => node(KINDS[k], term, index))
     );
     for (const g of given) for (const w of when) link(g, w);
     for (const w of when) for (const t of then) link(w, t);
