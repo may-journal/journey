@@ -40,6 +40,7 @@ flowchart TB
     group(8 Choose App users, Developers or Both<br/>Req 0005):::action
     repos(9 Check the repos to show<br/>Req 0006):::action
     find(10 Type a term to find<br/>Req 0007):::action
+    share[(11 Keep the view in the address<br/>Req 0008)]:::system
 
     viewer --> token
     token --> fetch
@@ -54,6 +55,7 @@ flowchart TB
     repos --> graph
     graph --> find
     find --> graph
+    graph --> share
 
     classDef persona fill:#eef2ff,stroke:#6366f1,color:#312e81,stroke-width:2px
     classDef screen fill:#f8fafc,stroke:#64748b,color:#1e293b,stroke-width:2px
@@ -75,3 +77,4 @@ Numbers match the callout table.
 | 8   | The viewer narrows the graph to one actor group.   | Action  | It rebuilds in memory, with no fetch.       |
 | 9   | The viewer checks only the repos they care about.  | Action  | The choice stays in that browser.           |
 | 10  | The viewer types text to mark matching terms.      | Action  | A term is found without reading every node. |
+| 11  | The address hash follows the filter, repos, Find.  | System  | A copied link opens the same view.          |

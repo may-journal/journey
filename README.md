@@ -20,6 +20,10 @@ A checkbox per repo with docs limits the graph to the checked repos, and all sta
 
 The Find box marks each drawn term that contains the typed text, ignoring letter case, and dims the others. A note counts the matches, and the marks stay through every redraw until the box is empty.
 
+## Share a link
+
+The address hash holds the Show filter, the unchecked repos and the Find text, as in `#show=users&hide=app&find=sync`. Opening such a link restores that view, and its repo choice wins over the saved one for that visit. The default view has no hash, and the token is never written to the address.
+
 ## Package
 
 `src/journey.js` is also the package's one export, so other tools can reduce requirement docs the same way.
