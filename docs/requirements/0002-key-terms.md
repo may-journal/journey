@@ -30,3 +30,7 @@ clause parts in the fetched docs
   - Given Viewer has a When clause
     - When the page reduces it
       - Then its key term is the action verb, past a leading "the noun"
+- 0002.5
+  - Given Viewer has docs that write one term as singular and as plural
+    - When the page builds the graph
+      - Then the plural joins its singular as one node, and a plural seen alone stays as written
