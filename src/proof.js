@@ -49,7 +49,7 @@ export function idPattern(id) {
  * The status an annotation naming a promise gives it.
  */
 export function classify(text) {
-  if (/skip/i.test(text)) return STATUS.skipped;
+  if (/\bskipped\b/i.test(text)) return STATUS.skipped;
   if (/\bno test\b|\buntested\b|\bmissing (?:a )?test\b/i.test(text)) return STATUS.noTest;
   return STATUS.failed;
 }
@@ -66,19 +66,29 @@ async function readRun(get, name) {
   const since = Date.now() - WINDOW;
   const run = listed?.workflow_runs.find((r) => r.name === SUITE && Date.parse(r.created_at) >= since);
   if (!run) return null;
+  const found = { annotations: [], at: run.created_at, ran: false, url: run.html_url };
+  if (!RAN.has(run.conclusion)) return found;
   const { jobs } = await get(run.jobs_url);
-  const stepRan = jobs.some((job) => job.steps.some((step) => STEP.test(step.name) && RAN.has(step.conclusion)));
-  const notes = await Promise.all(jobs.map((job) => get(`${job.check_run_url}/annotations`)));
-  const annotations = notes
+  found.ran = jobs.some((job) => job.steps.some((step) => STEP.test(step.name) && RAN.has(step.conclusion)));
+  const notes = await Promise.all(jobs.map((job) => annotationsOf(get, job.check_run_url)));
+  found.annotations = notes
     .flat()
-    .filter((a) => a.annotation_level === CONCLUSION.failure || classify(a.message) === STATUS.skipped)
-    .map((a) => a.message);
-  return {
-    annotations,
-    at: run.created_at,
-    ran: run.conclusion === CONCLUSION.success || (run.conclusion === CONCLUSION.failure && stepRan),
-    url: run.html_url,
-  };
+    .map((a) => ({ level: a.annotation_level, text: [a.title, a.message].filter(Boolean).join(': ') }))
+    .filter((a) => a.level === CONCLUSION.failure || classify(a.text) === STATUS.skipped)
+    .map((a) => a.text);
+  return found;
+}
+
+/**
+ * Every annotation of one check run, a page of 100 at a time.
+ */
+async function annotationsOf(get, checkRun) {
+  const all = [];
+  for (let page = 1; ; page++) {
+    const batch = await get(`${checkRun}/annotations?per_page=100&page=${page}`);
+    all.push(...batch);
+    if (batch.length < 100) return all;
+  }
 }
 
 /**

@@ -80,6 +80,7 @@ export const runs = (name) =>
 
 /**
  * Routes for one repo whose newest Fitness suite run is `id`, `hoursAgo` old, with these annotations.
+ * GitHub serves annotations 100 to a page, and so do these routes.
  */
 export function suiteRun(
   name,
@@ -95,11 +96,15 @@ export function suiteRun(
     jobs_url: `${base}/actions/runs/${id}/jobs`,
     name: 'Fitness suite',
   };
-  return {
+  const routes = {
     [runs(name)]: { body: { workflow_runs: [{ ...run, id: 99, name: 'Issue check' }, run] } },
     [run.jobs_url]: {
       body: { jobs: [{ check_run_url: checkRun, steps: [{ conclusion: step, name: 'Run fitness' }] }] },
     },
-    [`${checkRun}/annotations`]: { body: annotations },
   };
+  for (let page = 1; page <= Math.floor(annotations.length / 100) + 1; page++) {
+    const body = annotations.slice((page - 1) * 100, page * 100);
+    routes[`${checkRun}/annotations?per_page=100&page=${page}`] = { body };
+  }
+  return routes;
 }

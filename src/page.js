@@ -115,12 +115,8 @@ export function start({ fetchImpl, mermaid, window }) {
     };
     const get = makeClient({ fetchImpl, onRate, token: String(token) });
     let results;
-    let named;
-    let proofs;
     try {
       results = await fetchJourney({ get, limit: LIMIT });
-      named = results.filter((r) => r.docs.length).map(({ repo }) => repo);
-      proofs = await fetchProof({ get, limit: LIMIT, repos: named });
     } catch (error) {
       const failure = error;
       if (mine !== run) return;
@@ -130,7 +126,15 @@ export function start({ fetchImpl, mermaid, window }) {
       ui.errors.append(card(message));
       return;
     }
+    // The docs already loaded, so a failure reading test runs still draws the graph.
+    const named = results.filter((r) => r.docs.length).map(({ repo }) => repo);
+    let proofError = null;
+    const proofs = await fetchProof({ get, limit: LIMIT, repos: named }).catch((error) => {
+      proofError = error;
+      return new Map();
+    });
     if (mine !== run) return;
+    if (proofError) ui.errors.append(card(`${proofError.message} Every promise shows as not run.`));
     for (const failed of results.filter((r) => r.error)) {
       ui.errors.append(card(`${failed.repo}: ${failed.error} Its requirements are left out.`));
     }
@@ -212,7 +216,7 @@ export function start({ fetchImpl, mermaid, window }) {
   const showTable = () => {
     const rank = (a) => (UNPROVEN.has(a.proof.status) ? 0 : 1);
     const open = shown.filter((a) => a.proof.status !== STATUS.proven).sort((a, b) => rank(a) - rank(b));
-    ui.unprovenTitle.textContent = `Unproven · ${open.length} of ${shown.length} promises shown`;
+    ui.unprovenTitle.textContent = `Not proven · ${open.length} of ${shown.length} promises shown`;
     const rows = (listAll ? open : open.slice(0, LIST)).map((a) => {
       const path = make('td');
       for (const kind of KINDS) {

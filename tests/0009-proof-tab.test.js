@@ -5,7 +5,7 @@ import { BUCKET, CONCLUSION, fetchProof, judge, LIST, RED, STATUS } from '../src
 import { ORG_REPOS, RATE_LIMITED, replay, repo, repoDocs, runs, suiteRun } from './github.js';
 import { APP, CHECK, changed, click, KEY, ORG, openPage, SYNC, TOOLS } from './page.js';
 
-const FAILED = { annotation_level: CONCLUSION.failure, message: 'tests: 0001.2 the app warns failed', title: 'tests' };
+const FAILED = { annotation_level: CONCLUSION.failure, message: 'tests: 0001.2 the app warns failed', title: '' };
 const PROOF = { ...ORG, ...suiteRun(APP, { annotations: [FAILED] }) };
 const RUN_KEY = 'w_run';
 const ALARMS = 'alarms';
@@ -86,7 +86,7 @@ test('0009.3 a link carrying a failed, skipped or untested promise draws red', a
 test('0009.4 a table lists each unproven promise, its path and why, the first rows until List all', async () => {
   const page = await openProof();
   expect(page.ui.unprovenCard.hidden).toBe(false);
-  expect(page.ui.unprovenTitle.textContent).toBe('Unproven · 2 of 3 promises shown');
+  expect(page.ui.unprovenTitle.textContent).toBe('Not proven · 2 of 3 promises shown');
   const [warns, passes] = [parseDoc(SYNC).acceptances[1], parseDoc(CHECK).acceptances[0]].map((a) => a.thens[0]);
   expect(rows(page)).toEqual([
     [`${APP} · 0001.2`, warns, 'writer full edit app', `Failed ${FAILED.message}`],
@@ -121,24 +121,34 @@ const proofOf = async (routes, names = [APP]) => {
 };
 
 const promise = (id) => ({ id, repo: APP });
-const [FIRST, THIRD, FOURTH, THIRTY_FIRST] = ['0001.1', '0001.3', '0001.4', '0001.31'].map(promise);
+const [FIRST, THIRD, FOURTH, FIFTH, THIRTY_FIRST] = ['0001.1', '0001.3', '0001.4', '0001.5', '0001.31'].map(promise);
 
 test('0009.5 each promise is judged by its repo’s newest Fitness suite run from the last week alone', async () => {
   const skipped = { annotation_level: 'warning', message: '0001.1 was skipped', title: '' };
   const untested = { annotation_level: CONCLUSION.failure, message: 'requirements: no test names 0001.3', title: '' };
-  const warned = { annotation_level: 'warning', message: 'Node 20 is deprecated; 0001.4 ran', title: '' };
-  const run = (await proofOf(suiteRun(APP, { annotations: [skipped, untested, warned] }))).get(APP);
+  const warned = { annotation_level: 'warning', message: 'Skipping cache restore; 0001.4 ran', title: '' };
+  const titled = { annotation_level: CONCLUSION.failure, message: 'expected true', title: '0001.5 the app warns' };
+  const filler = Array.from({ length: 100 }, () => ({ annotation_level: 'notice', message: 'ok', title: '' }));
+  const annotations = [...filler, skipped, untested, warned, titled];
+  const run = (await proofOf(suiteRun(APP, { annotations }))).get(APP);
   expect(run.url).toBe(`https://github.com/may-journal/${APP}/actions/runs/1`);
   expect(judge(FIRST, run).status).toBe(STATUS.skipped);
   expect(judge(THIRD, run).status).toBe(STATUS.noTest);
   expect(judge(FOURTH, run).status).toBe(STATUS.proven);
+  expect(judge(FIFTH, run)).toEqual({
+    detail: `${titled.title}: ${titled.message}`,
+    status: STATUS.failed,
+    url: run.url,
+  });
   expect(judge(THIRTY_FIRST, run).status).toBe(STATUS.proven);
   expect(judge(THIRD, undefined)).toEqual({ detail: 'no Fitness suite run in 7 days', status: STATUS.notRun });
 
   const old = (await proofOf(suiteRun(APP, { conclusion: CONCLUSION.success, hoursAgo: 8 * 24 }))).get(APP);
   expect(judge(FIRST, old).status).toBe(STATUS.notRun);
-  const passed = (await proofOf(suiteRun(APP, { conclusion: CONCLUSION.success, step: undefined }))).get(APP);
+  const passed = (await proofOf(suiteRun(APP, { conclusion: CONCLUSION.success }))).get(APP);
   expect(judge(FIRST, passed).status).toBe(STATUS.proven);
+  const untried = (await proofOf(suiteRun(APP, { conclusion: CONCLUSION.success, step: null }))).get(APP);
+  expect(judge(FIRST, untried).status).toBe(STATUS.notRun);
   const stopped = (await proofOf(suiteRun(APP, { step: 'skipped' }))).get(APP);
   expect(judge(FIRST, stopped)).toEqual({
     detail: 'the newest run stopped before its tests',
@@ -155,6 +165,7 @@ test('0009.5 each promise is judged by its repo’s newest Fitness suite run fro
 
   await expect(proofOf({ [runs(APP)]: RATE_LIMITED }, [APP, TOOLS])).rejects.toMatchObject({ kind: ERROR.RATE });
   const page = openPage({ routes: { ...PROOF, [runs(TOOLS)]: RATE_LIMITED } });
-  await vi.waitFor(() => expect(page.ui.errors.textContent).toContain("GitHub's rate limit is used up."));
-  expect(page.ui.proofBadge.textContent).toBe('');
+  await vi.waitFor(() => expect(page.ui.proofBadge.textContent).toBe('0 unproven'));
+  expect(page.ui.errors.textContent).toMatch(/^GitHub's rate limit is used up\. .* Every promise shows as not run\.$/);
+  expect(page.mermaid.texts).toHaveLength(1);
 });

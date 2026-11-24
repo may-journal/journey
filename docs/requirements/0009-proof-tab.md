@@ -33,4 +33,4 @@ promises in the fetched docs
 - 0009.5
   - Given Viewer has a token that reads the repos' workflow runs
     - When the page loads
-      - Then it judges each promise by its repo's newest Fitness suite run from the last seven days
+      - Then it judges each promise by its repo's newest Fitness suite run from the last seven days, once that run's tests ran
