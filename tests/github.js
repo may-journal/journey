@@ -1,6 +1,8 @@
 // Replays GitHub's REST answers for the requirement tests, mapping each URL to the status, body and headers.
 // A route may wait on a `gate` promise, so a test can hold one answer back.
 
+import { CONCLUSION } from '../src/proof.js';
+
 export const API = 'https://api.github.com';
 export const ORG_REPOS = `${API}/orgs/may-journal/repos?type=all&per_page=100&page=`;
 export const RESET = 1800000000;
@@ -68,4 +70,36 @@ export function replay(routes) {
     });
   };
   return { calls, fetchImpl };
+}
+
+/**
+ * The URL of a repo's completed pull request workflow runs, where the Fitness suite runs.
+ */
+export const runs = (name) =>
+  `${API}/repos/may-journal/${name}/actions/runs?event=pull_request&status=completed&per_page=100`;
+
+/**
+ * Routes for one repo whose newest Fitness suite run is `id`, `hoursAgo` old, with these annotations.
+ */
+export function suiteRun(
+  name,
+  { annotations = [], conclusion = CONCLUSION.failure, hoursAgo = 8, id = 1, step = conclusion }
+) {
+  const base = `${API}/repos/may-journal/${name}`;
+  const checkRun = `${base}/check-runs/${id}0`;
+  const run = {
+    conclusion,
+    created_at: new Date(Date.now() - hoursAgo * 3600000).toISOString(),
+    html_url: `https://github.com/may-journal/${name}/actions/runs/${id}`,
+    id,
+    jobs_url: `${base}/actions/runs/${id}/jobs`,
+    name: 'Fitness suite',
+  };
+  return {
+    [runs(name)]: { body: { workflow_runs: [{ ...run, id: 99, name: 'Issue check' }, run] } },
+    [run.jobs_url]: {
+      body: { jobs: [{ check_run_url: checkRun, steps: [{ conclusion: step, name: 'Run fitness' }] }] },
+    },
+    [`${checkRun}/annotations`]: { body: annotations },
+  };
 }

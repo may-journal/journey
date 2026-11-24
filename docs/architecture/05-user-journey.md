@@ -39,6 +39,7 @@ flowchart TB
     details[7 Acceptances with links<br/>Req 0004]:::screen
     group(8 Choose App users, Developers or Both<br/>Req 0005):::action
     repos(9 Check the repos to show<br/>Req 0006):::action
+    proof[10 Proof tab: proven count, tiles, unproven table<br/>Req 0009]:::screen
 
     viewer --> token
     token --> fetch
@@ -51,6 +52,8 @@ flowchart TB
     group --> graph
     graph --> repos
     repos --> graph
+    graph --> proof
+    proof --> graph
 
     classDef persona fill:#eef2ff,stroke:#6366f1,color:#312e81,stroke-width:2px
     classDef screen fill:#f8fafc,stroke:#64748b,color:#1e293b,stroke-width:2px
@@ -71,3 +74,4 @@ Numbers match the callout table.
 | 7   | Each acceptance shows its text, doc and test.      | Screen  | It leads to the code behind the term.       |
 | 8   | The viewer narrows the graph to one actor group.   | Action  | It rebuilds in memory, with no fetch.       |
 | 9   | The viewer checks only the repos they care about.  | Action  | The choice stays in that browser.           |
+| 10  | The Proof tab shows which promises tests proved.   | Screen  | Red links mark where broken promises sit.   |

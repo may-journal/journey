@@ -20,6 +20,8 @@
         --given: #e8f0ff;
         --when: #fff2d9;
         --then: #e6f5ea;
+        --proven: #1d7a36;
+        --not-run: #9a6700;
         color-scheme: light dark;
       }
       @media (prefers-color-scheme: dark) {
@@ -34,6 +36,8 @@
           --given: #1f2b45;
           --when: #3d311a;
           --then: #1d3626;
+          --proven: #6fcf8a;
+          --not-run: #e0b04a;
         }
       }
       * {
@@ -204,6 +208,128 @@
         margin: 0;
         overflow-wrap: anywhere;
       }
+      #tabs {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid var(--line);
+        margin: 12px 0;
+      }
+      #tabs button {
+        border: 1px solid transparent;
+        border-bottom: 0;
+        border-radius: 8px 8px 0 0;
+        background: none;
+        color: var(--muted);
+        margin-bottom: -1px;
+      }
+      #tabs button[aria-selected='true'] {
+        border-color: var(--line);
+        background: var(--bg);
+        color: var(--text);
+        font-weight: 600;
+      }
+      .badge {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0 8px;
+        font-size: 13px;
+      }
+      .badge:empty {
+        display: none;
+      }
+      .big {
+        font-size: 24px;
+      }
+      .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 4px;
+      }
+      #tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin: 12px 0;
+      }
+      .tile {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 12px;
+        display: grid;
+        gap: 2px;
+      }
+      .tile .count {
+        font-size: 22px;
+        font-weight: 600;
+      }
+      .bar {
+        display: flex;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        background: var(--line);
+      }
+      :is(.bar, .legend) .proven {
+        background: var(--proven);
+      }
+      :is(.bar, .legend) .unproven {
+        background: var(--error);
+      }
+      :is(.bar, .legend) .not-run {
+        background: var(--not-run);
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 8px;
+        border-top: 1px solid var(--line);
+      }
+      th {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .chip {
+        display: inline-block;
+        border: 1px solid var(--muted);
+        border-radius: 4px;
+        padding: 0 6px;
+        margin: 0 4px 4px 0;
+        font-size: 13px;
+      }
+      .chip.given {
+        background: var(--given);
+        border-radius: 10px;
+      }
+      .chip.when {
+        background: var(--when);
+      }
+      .chip.then {
+        background: var(--then);
+      }
+      .why {
+        border: 1px solid var(--error);
+        color: var(--error);
+        border-radius: 999px;
+        padding: 0 8px;
+        margin-right: 6px;
+        font-size: 13px;
+      }
+      .why.not-run {
+        background: none;
+        border-color: var(--not-run);
+        color: var(--not-run);
+      }
       body [hidden] {
         display: none;
       }
@@ -240,7 +366,8 @@
           <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener"
             >fine-grained token</a
           >
-          with the may-journal org as owner, all repositories, and read-only Contents access. This page keeps it only
+          with the may-journal org as owner, all repositories, and read-only Contents and Actions access. Actions
+          access lets the Proof tab read test runs. This page keeps it only
           in this browser's local storage and sends it only to api.github.com.
         </p>
         <form id="tokenForm">
@@ -259,8 +386,18 @@
       </section>
 
       <section id="app" hidden>
+        <div id="tabs" role="tablist" aria-label="Views">
+          <button type="button" id="tabGraph" role="tab" aria-selected="true">Graph</button>
+          <button type="button" id="tabProof" role="tab" aria-selected="false">Proof <span id="proofBadge" class="badge"></span></button>
+        </div>
         <p id="status" class="muted" aria-live="polite"></p>
         <div id="errors"></div>
+        <section id="proofPanel" hidden>
+          <h2 id="proofTitle" class="big">Promises proven</h2>
+          <p id="proofNote" class="muted"></p>
+          <div id="proofLegend" class="legend"></div>
+          <div id="tiles"></div>
+        </section>
         <div class="controls">
           <label
             >Nodes <input type="range" id="cap" min="10" max="150" step="5" value="40" /> <output id="capOut">40</output>
@@ -282,12 +419,30 @@
           <span><span class="swatch when"></span>When: action</span>
           <span><span class="swatch then"></span>Then: outcome</span>
           <span>Edge labels count acceptances.</span>
+          <span>A red link carries an unproven promise.</span>
         </div>
         <div id="diagram" role="img" aria-label="Journey graph"></div>
         <p id="graphNote" class="muted"></p>
         <section id="details" class="card" hidden>
           <h2 id="detailsTitle">Acceptances</h2>
           <ul id="detailsList"></ul>
+        </section>
+        <section id="unprovenCard" class="card" hidden>
+          <h2 id="unprovenTitle">Unproven promises</h2>
+          <div class="scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Promise</th>
+                  <th>Then</th>
+                  <th>Path</th>
+                  <th>Why it is unproven</th>
+                </tr>
+              </thead>
+              <tbody id="unprovenRows"></tbody>
+            </table>
+          </div>
+          <button type="button" id="listAll" hidden></button>
         </section>
       </section>
     </main>

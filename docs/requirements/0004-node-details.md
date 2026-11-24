@@ -25,7 +25,7 @@ node taps
 - 0004.3
   - Given Viewer has the graph open
     - When they choose Refresh
-      - Then every repo is fetched again and the graph is rebuilt from the new docs
+      - Then every repo's docs and test runs are fetched again, and the graph is rebuilt from them
 - 0004.4
   - Given Viewer chooses Refresh during a load
     - When both loads finish

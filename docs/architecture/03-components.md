@@ -12,6 +12,7 @@ C4Component
         Component(core, "5 Core", "JavaScript", "src/journey.js")
         Component(shell, "3 Shell", "HTML, CSS", "index.html")
         Component(screen, "4 Page script", "JavaScript", "src/page.js")
+        Component(proof, "8 Proof", "JavaScript", "src/proof.js")
     }
 
     Rel(viewer, shell, "A")
@@ -19,11 +20,14 @@ C4Component
     Rel(screen, core, "C")
     Rel(core, github, "D")
     Rel(shell, cdn, "E")
+    Rel(screen, proof, "F")
+    Rel(proof, github, "G")
 
     UpdateElementStyle(viewer, $bgColor="#334155", $borderColor="#1e293b", $fontColor="#ffffff")
     UpdateElementStyle(shell, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
     UpdateElementStyle(screen, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
     UpdateElementStyle(core, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
+    UpdateElementStyle(proof, $bgColor="#b45309", $borderColor="#92400e", $fontColor="#ffffff")
     UpdateElementStyle(github, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
     UpdateElementStyle(cdn, $bgColor="#64748b", $borderColor="#475569", $fontColor="#ffffff")
 ```
@@ -52,10 +56,13 @@ Numbers on nodes and letters on arrows match the callout table.
 | 3   | The layout, styles and the two script tags.            | Light and dark styles live here.                   |
 | 4   | The token screen, sliders, graph drawing and details.  | It takes its window, fetch and Mermaid as inputs.  |
 | 5   | Parsing, key terms, the graph, Mermaid text and fetch. | It touches no DOM, so tests call it directly.      |
-| 6   | Same API as the containers view.                       | Only the core calls it.                            |
+| 6   | Same API as the containers view.                       | Only the core and proof call it.                   |
 | 7   | Same CDN as the containers view.                       | Only the shell loads from it.                      |
+| 8   | Reads test runs and judges each promise by them.       | It touches no DOM, so tests call it directly.      |
 | A   | The viewer pastes a token, moves sliders, taps terms.  | The main way in.                                   |
 | B   | The shell's module script starts the page script.      | It passes the browser's own fetch and Mermaid.     |
 | C   | The page script calls the core to load and draw.       | The page script holds no parsing or fetch logic.   |
 | D   | The core lists repos and reads their docs.             | Bad tokens and rate limits stop it with a message. |
 | E   | The shell loads Mermaid before the page script runs.   | Deferred scripts run in document order.            |
+| F   | The page script asks proof to judge the promises.      | The Proof tab and red links read its verdicts.     |
+| G   | Proof reads each repo's newest Fitness suite run.      | Bad tokens and rate limits stop it with a message. |
