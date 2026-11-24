@@ -122,18 +122,19 @@ export function buildGraph(acceptances) {
     entry.acceptances.push(index);
     return key;
   };
-  const link = (from, to) => {
+  const link = (from, to, index) => {
     const key = `${from}>${to}`;
-    const edge = edges.get(key) ?? { from, to, weight: 0 };
+    const edge = edges.get(key) ?? { acceptances: [], from, to, weight: 0 };
     edges.set(key, edge);
     edge.weight += 1;
+    edge.acceptances.push(index);
   };
   acceptances.forEach((acceptance, index) => {
     const [given, when, then] = KINDS.map((kind) =>
       termsOf(acceptance[`${kind}s`], kind).map((term) => node(kind, term, index))
     );
-    for (const g of given) for (const w of when) link(g, w);
-    for (const w of when) for (const t of then) link(w, t);
+    for (const g of given) for (const w of when) link(g, w, index);
+    for (const w of when) for (const t of then) link(w, t, index);
   });
   return { edges, nodes };
 }
@@ -166,9 +167,9 @@ export function selectGraph(graph, { cap, min }) {
 
 /**
  * Writes deterministic Mermaid flowchart text, left to right, with edge
- * widths scaled to their weight.
+ * widths scaled to their weight. An edge `marked` picks strokes in `color`.
  */
-export function toMermaid({ edges, nodes }) {
+export function toMermaid({ edges, nodes }, { color = '', marked = () => false } = {}) {
   const lines = ['flowchart LR'];
   for (const n of [...nodes].sort((a, b) => byKind(a, b) || byCount(a, b))) {
     lines.push(`  ${n.key}${SHAPES.get(n.kind)?.(`${n.term} · ${n.count}`)}:::${n.kind}`);
@@ -176,7 +177,8 @@ export function toMermaid({ edges, nodes }) {
   const top = Math.max(1, ...edges.map((e) => e.weight));
   edges.forEach((e, i) => {
     lines.push(`  ${e.from} -->|${e.weight}| ${e.to}`);
-    lines.push(`  linkStyle ${i} stroke-width:${(1 + (4 * e.weight) / top).toFixed(1)}px`);
+    const stroke = marked(e) ? `,stroke:${color}` : '';
+    lines.push(`  linkStyle ${i} stroke-width:${(1 + (4 * e.weight) / top).toFixed(1)}px${stroke}`);
   });
   return `${lines.join('\n')}\n`;
 }

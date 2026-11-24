@@ -4,7 +4,7 @@ One live user journey drawn from every may-journal repo's requirements.
 
 ## The page
 
-GitHub Pages serves this repo's main branch as it is, with no build or schedule. Open the page and paste a fine-grained, read-only Contents token. The page fetches each repo's `docs/requirements/*.md`, reduces every clause to a key term, and draws one Mermaid graph. The token and the repo choice stay in that browser's local storage, and nothing else is stored.
+GitHub Pages serves this repo's main branch as it is, with no build or schedule. Open the page and paste a fine-grained token with read-only Contents and Actions access. The page fetches each repo's `docs/requirements/*.md`, reduces every clause to a key term, and draws one Mermaid graph. The token and the repo choice stay in that browser's local storage, and nothing else is stored.
 
 Given key terms name the actor or state, When terms the action, and Then terms the outcome. Each is the first word left after filler words and pronouns, kept as `not-<term>` after a "not". A When clause skips a leading "the noun" first, to reach its verb.
 
@@ -16,13 +16,17 @@ The Show filter picks App users, Developers or Both, and Both is the default. An
 
 A checkbox per repo with docs limits the graph to the checked repos, and all start checked. The page keeps the unchecked repos in localStorage, so a repo found later starts checked.
 
+## Proof
+
+The Proof tab shows which promises the org's tests proved, from each repo's newest Fitness suite run in the last seven days. That run's failure annotations name the promises that failed, were skipped or have no test. A promise with no such run counts as not run, not as broken. The token needs read-only Actions access for this, and the graph draws a link red when it carries a broken promise.
+
 ## Package
 
 `src/journey.js` is also the package's one export, so other tools can reduce requirement docs the same way.
 
 ## Structure
 
-`index.html` holds the layout and styles and loads Mermaid. `src/page.js` runs the screens, and `src/journey.js` holds the parsing, graph, Mermaid and GitHub code.
+`index.html` holds the layout and styles and loads Mermaid. `src/page.js` runs the screens, `src/journey.js` holds the parsing, graph, Mermaid and GitHub code, and `src/proof.js` judges each promise by its test run.
 
 ## Make targets
 

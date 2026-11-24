@@ -79,7 +79,7 @@ test('0004.4 only the newest load draws when Refresh is chosen during a load', a
   page.ui.refresh.click();
   await drawn(page, KEY.writer);
   release();
-  await vi.waitFor(() => expect(page.github.calls).toHaveLength(12));
+  await vi.waitFor(() => expect(page.github.calls).toHaveLength(16));
   await settle();
   expect(page.mermaid.texts).toHaveLength(1);
 

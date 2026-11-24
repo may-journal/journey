@@ -123,9 +123,14 @@ export const nodeOf = (page, key) => page.ui.diagram.querySelector(`${NODES}[id*
 export const selectedNodes = (page) => drawnNodes(page).filter((n) => n.classList.contains(SELECTED));
 
 /**
+ * Clicks an element, as a tap does.
+ */
+export const click = (page, el) => el.dispatchEvent(new page.window.MouseEvent('click'));
+
+/**
  * Taps a drawn node.
  */
-export const tap = (page, key) => nodeOf(page, key).dispatchEvent(new page.window.MouseEvent('click'));
+export const tap = (page, key) => click(page, nodeOf(page, key));
 
 /**
  * Presses a key on a drawn node.

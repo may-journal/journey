@@ -9,10 +9,27 @@ import {
   flatten,
   GROUP,
   groupsOf,
+  KINDS,
   makeClient,
   selectGraph,
+  termsOf,
   toMermaid,
 } from './journey.js';
+import {
+  BAR,
+  BUCKET,
+  bucketOf,
+  DAYS,
+  fetchProof,
+  judge,
+  LABELS,
+  LIST,
+  RED,
+  STATUS,
+  SUITE,
+  tally,
+  UNPROVEN,
+} from './proof.js';
 
 export const TOKEN_KEY = 'journey.token';
 export const HIDDEN_KEY = 'journey.hiddenRepos';
@@ -22,6 +39,15 @@ const LIMIT = 6;
 // Mermaid names each node's group flowchart-<key>-<n>, after the SVG's own ID.
 const NODE_ID = /^.*flowchart-(\w+)-\d+$/;
 export const NODES = 'g.node';
+// The attribute that marks the chosen tab.
+export const CHOSEN = 'aria-selected';
+const DIV = 'div';
+const SPAN = 'span';
+const LEGEND = {
+  [BUCKET.notRun]: `Not run in ${DAYS} days`,
+  [BUCKET.proven]: 'Proven',
+  [BUCKET.unproven]: 'Unproven',
+};
 // Mermaid themes for each color scheme.
 export const THEME = { dark: 'dark', light: 'neutral' };
 
@@ -48,6 +74,7 @@ export function start({ fetchImpl, mermaid, window }) {
   let shown = [];
   let graph = buildGraph([]);
   let selected = null;
+  let listAll = false;
 
   const make = (tag, className = '', text = '') => {
     const el = document.createElement(tag);
@@ -56,8 +83,8 @@ export function start({ fetchImpl, mermaid, window }) {
     return el;
   };
 
-  const card = (text) => make('div', 'card', text);
-  const row = () => make('div', 'row');
+  const card = (text) => make(DIV, 'card', text);
+  const row = () => make(DIV, 'row');
 
   const show = (asking) => {
     ui.tokenScreen.hidden = !asking;
@@ -99,16 +126,24 @@ export function start({ fetchImpl, mermaid, window }) {
       ui.errors.append(card(message));
       return;
     }
+    // The docs already loaded, so a failure reading test runs still draws the graph.
+    const named = results.filter((r) => r.docs.length).map(({ repo }) => repo);
+    let proofError = null;
+    const proofs = await fetchProof({ get, limit: LIMIT, repos: named }).catch((error) => {
+      proofError = error;
+      return new Map();
+    });
     if (mine !== run) return;
+    if (proofError) ui.errors.append(card(`${proofError.message} Every promise shows as not run.`));
     for (const failed of results.filter((r) => r.error)) {
       ui.errors.append(card(`${failed.repo}: ${failed.error} Its requirements are left out.`));
     }
-    ui.repos.replaceChildren(...results.filter((r) => r.docs.length).map(({ repo }) => repoBox(repo)));
-    acceptances = flatten(results);
-    const withDocs = results.filter((r) => r.docs.length).length;
+    ui.repos.replaceChildren(...named.map(repoBox));
+    acceptances = flatten(results).map((a) => ({ ...a, proof: judge(a, proofs.get(a.repo)) }));
+    showTiles();
     const reset = new Date(rate.reset * 1000).toLocaleTimeString();
     ui.status.textContent =
-      `${withDocs} of ${results.length} repos have requirements · ${acceptances.length} acceptances · ` +
+      `${named.length} of ${results.length} repos have requirements · ${acceptances.length} acceptances · ` +
       `${rate.remaining} of ${rate.limit} API calls left until ${reset}`;
     await rebuild();
   };
@@ -141,11 +176,76 @@ export function start({ fetchImpl, mermaid, window }) {
     const neither = groups.filter((g) => !g.size).length;
     ui.groupNote.textContent = `${neither} acceptances fit neither group, so they show only under Both.`;
     graph = buildGraph(shown);
+    listAll = false;
+    showTable();
     await draw();
+  };
+
+  // The Proof tab's headline, legend and one tile per repo, over every repo with docs.
+  const showTiles = () => {
+    const { repos, total } = tally(acceptances);
+    const unproven = (counts) => `${counts[BUCKET.unproven]} unproven`;
+    ui.proofBadge.textContent = unproven(total);
+    const whole = (n) => n.toLocaleString('en-US');
+    ui.proofTitle.textContent = `${whole(total[BUCKET.proven])} of ${whole(total.total)} promises proven`;
+    ui.proofNote.textContent = `Read from each repo's newest ${SUITE} run in the last ${DAYS} days. A promise is proven when that run's tests ran and no failure names its ID.`;
+    const dots = BAR.map((key) => {
+      const entry = make(SPAN, '', `${LEGEND[key]} · ${total[key]}`);
+      entry.prepend(make(SPAN, `dot ${key}`));
+      return entry;
+    });
+    ui.proofLegend.replaceChildren(...dots);
+    const tiles = [...repos].map(([repo, counts]) => {
+      const bar = make(DIV, 'bar');
+      for (const key of BAR) {
+        const part = make(SPAN, key);
+        part.style.width = `${Math.round((100 * counts[key]) / counts.total)}%`;
+        bar.append(part);
+      }
+      let note = 'All proven';
+      if (counts[BUCKET.notRun]) note = `${counts[BUCKET.notRun]} not run`;
+      if (counts[BUCKET.unproven]) note = unproven(counts);
+      const tile = make(DIV, 'tile');
+      tile.append(make('strong', '', repo), make(SPAN, 'count', String(counts.total)), bar, make(SPAN, 'muted', note));
+      return tile;
+    });
+    ui.tiles.replaceChildren(...tiles);
+  };
+
+  // The unproven promises among those shown, the broken ones first, then those not run.
+  const showTable = () => {
+    const rank = (a) => (UNPROVEN.has(a.proof.status) ? 0 : 1);
+    const open = shown.filter((a) => a.proof.status !== STATUS.proven).sort((a, b) => rank(a) - rank(b));
+    ui.unprovenTitle.textContent = `Not proven · ${open.length} of ${shown.length} promises shown`;
+    const rows = (listAll ? open : open.slice(0, LIST)).map((a) => {
+      const path = make('td');
+      for (const kind of KINDS) {
+        for (const term of termsOf(a[`${kind}s`], kind)) path.append(make(SPAN, `chip ${kind}`, term));
+      }
+      const why = make('td');
+      why.append(make(SPAN, `why ${bucketOf(a.proof.status)}`, LABELS[a.proof.status]));
+      why.append(a.proof.url ? link(a.proof.url, a.proof.detail) : a.proof.detail);
+      const promise = make('td');
+      promise.append(link(a.url, `${a.repo} · ${a.id}`));
+      const tr = make('tr');
+      tr.append(promise, make('td', '', a.thens.join('; ')), path, why);
+      return tr;
+    });
+    ui.unprovenRows.replaceChildren(...rows);
+    ui.listAll.textContent = `List all ${open.length}`;
+    ui.listAll.hidden = listAll || open.length <= LIST;
+  };
+
+  const selectTab = (proof) => {
+    ui.tabGraph.setAttribute(CHOSEN, String(!proof));
+    ui.tabProof.setAttribute(CHOSEN, String(proof));
+    ui.proofPanel.hidden = !proof;
+    ui.unprovenCard.hidden = !proof;
   };
 
   const draw = async () => {
     const current = graph;
+    const drawn = shown;
     if (!current.nodes.size) {
       ui.graphNote.textContent = '';
       ui.diagram.replaceChildren();
@@ -170,7 +270,11 @@ export function start({ fetchImpl, mermaid, window }) {
         startOnLoad: false,
         theme: dark.matches ? THEME.dark : THEME.light,
       });
-      ({ svg } = await mermaid.render(`journey-svg-${mine}`, toMermaid(picked)));
+      const red = {
+        color: dark.matches ? RED.dark : RED.light,
+        marked: (edge) => edge.acceptances.some((i) => UNPROVEN.has(drawn[i].proof.status)),
+      };
+      ({ svg } = await mermaid.render(`journey-svg-${mine}`, toMermaid(picked, red)));
     } catch (error) {
       failure = `Mermaid could not draw the graph. ${error}`;
     }
@@ -246,6 +350,12 @@ export function start({ fetchImpl, mermaid, window }) {
     load();
   };
   ui.forget.onclick = () => askToken('');
+  ui.tabGraph.onclick = () => selectTab(false);
+  ui.tabProof.onclick = () => selectTab(true);
+  ui.listAll.onclick = () => {
+    listAll = true;
+    showTable();
+  };
   ui.refresh.onclick = load;
   ui.group.onchange = rebuild;
   for (const slider of [ui.cap, ui.min]) {
