@@ -23,6 +23,7 @@ Run `npm ci` once.
 | Target | Does | Needs |
 | --- | --- | --- |
 | `make build` | Writes the one-file page to `dist/index.html`. `OUT` picks another folder. | Node 26 |
+| `make serve` | Builds the page and serves it on the local network at port 8790. `PORT` picks another port. | Python 3 |
 | `make test` | Runs the requirement tests with full coverage. | Node 26 |
 | `make check` | Runs the fitness suite. | Fitness |
 | `make counts` | Prints repo, doc, acceptance, node and edge counts as JSON, using the page's code. `ARGS=--dates` adds dates. | `GITHUB_TOKEN` |
