@@ -14,19 +14,26 @@ acceptances in the fetched docs
 
 ## Requirements
 
-- 0005.1
-  - Given Viewer has the graph open
-    - When they look at the filter
-      - Then it offers App users, Developers and Both, with Both chosen
-- 0005.2
-  - Given Viewer chooses App users or Developers
-    - When the graph rebuilds
-      - Then it holds only acceptances whose Given key term names that group, with no new fetch
-- 0005.3
-  - Given Viewer has acceptances whose Given is spoken as I, you or we
-    - When the page sorts them into groups
-      - Then they count as app users
-- 0005.4
-  - Given Viewer has an acceptance whose Given fits neither group
-    - When they choose a group
-      - Then a note counts it and it still shows under Both
+1. Offers groups
+   1. GIVEN Viewer has the graph open
+      1. WHEN they look at the filter
+         1. THEN it offers App users
+         2. THEN Developers and Both
+         3. THEN with Both chosen
+2. Filters by group
+   1. GIVEN Viewer chooses App users or Developers
+      1. WHEN the graph rebuilds
+         1. THEN it holds only acceptances whose Given key term names that group
+         2. THEN with no new fetch
+3. Spoken pronouns
+   1. GIVEN Viewer has acceptances whose Given is spoken as a pronoun
+      1. WHEN the page sorts a Given spoken as I into groups
+         1. THEN it counts as app users
+      2. WHEN the page sorts a Given spoken as you into groups
+         1. THEN it counts as app users
+      3. WHEN the page sorts a Given spoken as we into groups
+         1. THEN it counts as app users
+4. Fits neither group
+   1. GIVEN Viewer has an acceptance whose Given fits neither group
+      1. WHEN they choose a group
+         1. THEN a note counts it and it still shows under Both

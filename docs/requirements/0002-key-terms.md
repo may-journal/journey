@@ -14,19 +14,25 @@ clause parts in the fetched docs
 
 ## Requirements
 
-- 0002.1
-  - Given Viewer has a requirement doc nested four or two spaces deep, with front matter
-    - When the page reads it
-      - Then each acceptance keeps its ID, line and clause texts, front matter adds none, and no heading means its path
-- 0002.2
-  - Given Viewer has a clause joined by commas or "and"
-    - When the page splits it
-      - Then each part stands alone and code spans drop out
-- 0002.3
-  - Given Viewer has a Given or Then clause
-    - When the page reduces it
-      - Then its key term is the first word left after filler and pronouns, kept as not-<term> after a "not"
-- 0002.4
-  - Given Viewer has a When clause
-    - When the page reduces it
-      - Then its key term is the action verb, past a leading "the noun"
+1. Reads a doc
+   1. GIVEN Viewer has a requirement doc nested four or two spaces deep
+   2. GIVEN with front matter
+      1. WHEN the page reads it
+         1. THEN each acceptance keeps its ID
+         2. THEN line and clause texts
+         3. THEN front matter adds none
+         4. THEN no heading means its path
+2. Splits a clause
+   1. GIVEN Viewer has a clause joined by commas or "and"
+      1. WHEN the page splits it
+         1. THEN each part stands alone and code spans drop out
+3. Key term of a condition or result
+   1. GIVEN Viewer has a Given or Then clause
+      1. WHEN the page reduces it
+         1. THEN its key term is the first word left after filler and pronouns
+         2. THEN kept as not-<term> after a "not"
+4. Key term of an action
+   1. GIVEN Viewer has a When clause
+      1. WHEN the page reduces it
+         1. THEN its key term is the action verb
+         2. THEN past a leading "the noun"

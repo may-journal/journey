@@ -14,31 +14,34 @@ unarchived repos in the org
 
 ## Requirements
 
-- 0001.1
-  - Given Viewer has no token saved
-    - When they open the page
-      - Then it asks for a token and fetches nothing
-- 0001.2
-  - Given Viewer pastes a token
-    - When they save it
-      - Then it stays only in localStorage, every repo's docs load with it, and the status shows the fewest calls left
-- 0001.3
-  - Given Viewer has a token GitHub rejects
-    - When the page loads
-      - Then it forgets the token, stops fetching and asks for another
-- 0001.4
-  - Given Viewer has used up GitHub's rate limit
-    - When the page loads
-      - Then it says when the limit resets
-- 0001.5
-  - Given Viewer has a repo that fails to load
-    - When the page loads
-      - Then a card names that repo while the others still draw
-- 0001.6
-  - Given Viewer cannot list the org's repos
-    - When the page loads
-      - Then it says loading failed
-- 0001.7
-  - Given Viewer has a saved token
-    - When they choose Forget token
-      - Then the token and its graph are removed and the page asks for one
+1. Asks for a token
+   1. GIVEN Viewer has no token saved
+      1. WHEN they open the page
+         1. THEN it asks for a token and fetches nothing
+2. Keeps a pasted token
+   1. GIVEN Viewer pastes a token
+      1. WHEN they save it
+         1. THEN it stays only in localStorage
+         2. THEN every repo's docs load with it
+         3. THEN the status shows the fewest calls left
+3. Rejected token
+   1. GIVEN Viewer has a token GitHub rejects
+      1. WHEN the page loads
+         1. THEN it forgets the token
+         2. THEN stops fetching and asks for another
+4. Rate limit
+   1. GIVEN Viewer has used up GitHub's rate limit
+      1. WHEN the page loads
+         1. THEN it says when the limit resets
+5. Failed repo
+   1. GIVEN Viewer has a repo that fails to load
+      1. WHEN the page loads
+         1. THEN a card names that repo while the others still draw
+6. Failed listing
+   1. GIVEN Viewer cannot list the org's repos
+      1. WHEN the page loads
+         1. THEN it says loading failed
+7. Forget token
+   1. GIVEN Viewer has a saved token
+      1. WHEN they choose Forget token
+         1. THEN the token and its graph are removed and the page asks for one
