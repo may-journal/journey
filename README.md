@@ -16,6 +16,10 @@ Given key terms name the actor or state, When terms the action, and Then terms t
 
 The Show filter picks App users, Developers or Both, and Both is the default. An acceptance joins a group when one of its Given key terms is on that group's list in `GROUP_TERMS` in `src/journey.js`. A Given spoken as "I", "you" or "we" also counts as App users, since docs write the app's user that way. An acceptance that fits neither group shows only under Both, and a note counts them.
 
+## Repo choice
+
+A checkbox per repo with docs limits the graph to the checked repos, and all start checked. The page keeps the unchecked repos in localStorage, so a repo found later starts checked.
+
 ## Package
 
 `src/journey.js` is also the package's one export, so other tools can reduce requirement docs the same way.
