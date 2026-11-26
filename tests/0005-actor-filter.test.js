@@ -60,9 +60,14 @@ test('0005.2 choosing a group redraws only its acceptances without a new fetch',
 });
 
 test('0005.3 a Given spoken as I, you or we counts as an app user', () => {
-  expect([...groupsOf({ givens: ['I open May for the first time'] })]).toEqual([GROUP.users]);
-  expect([...groupsOf({ givens: ['You have a connection'] })]).toEqual([GROUP.users]);
-  expect([...groupsOf({ givens: ['We share a list'] })]).toEqual([GROUP.users]);
+  const steps = [
+    ['0005.3.1 I', 'I open May for the first time'],
+    ['0005.3.2 you', 'You have a connection'],
+    ['0005.3.3 we', 'We share a list'],
+  ];
+  for (const [step, given] of steps) {
+    expect([step, [...groupsOf({ givens: [given] })]]).toEqual([step, [GROUP.users]]);
+  }
   expect([...groupsOf({ givens: ['Inbox has mail'] })]).toEqual([]);
 });
 
