@@ -1,0 +1,23 @@
+{
+  "source": "may-journal/.github",
+  "files": {
+    ".fitness-hooks/commit-msg": "d98eefc34e56bd4fbceb722e4b820acbfa36e1b0",
+    ".fitness-hooks/pre-commit": "814e95097902f6b6101860bc75b7fe573fae6e66",
+    ".fitness-hooks/pre-push": "22bfc36be5e7ed61fd13935b79a290b33065e644",
+    ".github/ISSUE_TEMPLATE/bug.md": "375a396c6bae7f1dd3040023d1d9dfac294d7e5b",
+    ".github/ISSUE_TEMPLATE/epic.md": "918e90994998b0f4eafad09efd0609db6b30e201",
+    ".github/ISSUE_TEMPLATE/idea.md": "63495aed4979d5e1b1b60ff6a126f4b5ff7f753a",
+    ".github/ISSUE_TEMPLATE/plan.md": "2c1ab89641a3b0998b729393d42fce584e76dd50",
+    ".github/ISSUE_TEMPLATE/research.md": "cbe1ce2684091de4bc2dc0a9afb83c13a92af6a4",
+    ".github/PULL_REQUEST_TEMPLATE.md": "9807dccf8237043e5922d751e041075096858c36",
+    ".github/fitness-setup.md": "00c45b5e41492f9c4f37eddd52daebd507ee46ae",
+    ".github/workflows/auto-merge-on-ready.yml": "eb29a2d212ab8a6b29b31b1e618d7465f8c5e998",
+    ".github/workflows/close-check.yml": "b25cd0ee413138744e214302b8ba54ecb9e44c44",
+    ".github/workflows/comment-check.yml": "1770a2519b7184a2d248f7d8f92df41b6cf53b7d",
+    ".github/workflows/dependabot-pr.yml": "e4b126d3376b91679e9fba40282f3ecc88b668a6",
+    ".github/workflows/issue-check.yml": "16f1df688714a4341185bef7f0bd3bd9f88ffbde",
+    ".github/workflows/static-preview.yml": "412dfd5b7c7afa771a4d4072f075cb15ac4c637c",
+    "scripts/static-preview-link.sh": "407a8499e17e286c9227977cecbf09d7a5b29469",
+    "scripts/static-preview-publish.sh": "736769dedf06d2d8517dd080873f9d7ea3970198"
+  }
+}
