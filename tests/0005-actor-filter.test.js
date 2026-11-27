@@ -59,7 +59,7 @@ test('0005.2 choosing a group redraws only its acceptances without a new fetch',
   ]);
 });
 
-test('0005.3 a Given spoken as I, you or we counts as an app user', () => {
+test('0005.3 a condition spoken as a personal pronoun (I, you or we) counts as an app user', () => {
   const steps = [
     ['0005.3.1 I', 'I open May for the first time'],
     ['0005.3.2 you', 'You have a connection'],

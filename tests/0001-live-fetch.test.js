@@ -6,7 +6,7 @@ const RATE_MESSAGE = "GitHub's rate limit is used up. It resets at ";
 
 const loaded = (page) => vi.waitFor(() => expect(page.ui.status.textContent).toContain('acceptances'));
 
-test('0001.1 with no token the page asks for one and fetches nothing', () => {
+test('0001.1 with no token the page asks for one, then fetches nothing', () => {
   const page = openPage({ token: null });
   expect(page.ui.tokenScreen.hidden).toBe(false);
   expect(page.ui.app.hidden).toBe(true);
@@ -38,7 +38,7 @@ test('0001.2 a pasted token stays only in localStorage and loads every repo page
   );
 });
 
-test('0001.3 a token GitHub rejects is forgotten and the page asks for another', async () => {
+test('0001.3 a token GitHub rejects is forgotten, fetching stops and the page asks for another', async () => {
   const page = openPage({ routes: { [`${ORG_REPOS}1`]: { body: { message: 'Bad credentials' }, status: 401 } } });
   await vi.waitFor(() => expect(page.ui.tokenScreen.hidden).toBe(false));
   expect(page.ui.tokenError.textContent).toBe('GitHub rejected the token. It may be wrong or expired. Paste another.');
@@ -51,7 +51,7 @@ test('0001.3 a token GitHub rejects is forgotten and the page asks for another',
   expect(halted.github.calls.length).toBe(8);
 });
 
-test('0001.4 a used-up rate limit says when it resets', async () => {
+test('0001.4 a used-up rate limit names the time it resets', async () => {
   const primary = openPage({ routes: { ...ORG, [listing('app')]: RATE_LIMITED } });
   const when = new Date(RESET * 1000).toLocaleTimeString();
   await vi.waitFor(() => expect(primary.ui.errors.textContent).toBe(`${RATE_MESSAGE}${when}.`));
@@ -75,7 +75,7 @@ test('0001.6 a failed org listing says loading failed', async () => {
   expect(page.ui.status.textContent).toBe('');
 });
 
-test('0001.7 Forget token removes it and asks for one again', async () => {
+test('0001.7 Forget token removes the token and its graph, then asks for one again', async () => {
   const page = openPage();
   await loaded(page);
   page.ui.forget.click();

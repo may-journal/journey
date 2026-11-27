@@ -17,7 +17,8 @@ unarchived repos in the org
 1. Asks for a token
    1. GIVEN Viewer has no token saved
       1. WHEN they open the page
-         1. THEN it asks for a token and fetches nothing
+         1. THEN it asks for a token
+         2. THEN it fetches nothing
 2. Keeps a pasted token
    1. GIVEN Viewer pastes a token
       1. WHEN they save it
@@ -28,11 +29,12 @@ unarchived repos in the org
    1. GIVEN Viewer has a token GitHub rejects
       1. WHEN the page loads
          1. THEN it forgets the token
-         2. THEN stops fetching and asks for another
+         2. THEN it stops fetching
+         3. THEN it asks for another
 4. Rate limit
    1. GIVEN Viewer has used up GitHub's rate limit
       1. WHEN the page loads
-         1. THEN it says when the limit resets
+         1. THEN it names the time the limit resets
 5. Failed repo
    1. GIVEN Viewer has a repo that fails to load
       1. WHEN the page loads
@@ -44,4 +46,6 @@ unarchived repos in the org
 7. Forget token
    1. GIVEN Viewer has a saved token
       1. WHEN they choose Forget token
-         1. THEN the token and its graph are removed and the page asks for one
+         1. THEN the token is removed
+         2. THEN its graph is removed
+         3. THEN the page asks for one

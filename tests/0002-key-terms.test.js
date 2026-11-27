@@ -3,28 +3,36 @@ import { flatten, KINDS, keyTerm, parseDoc, splitClause, termsOf } from '../src/
 import { EDIT, NESTED, SYNC } from './page.js';
 
 const [GIVEN, WHEN, THEN] = KINDS;
+const SECOND = '0001.2';
 
-test('0002.1 each acceptance keeps its ID, line and clause texts at either indent', () => {
+test('0002.1 each acceptance keeps its ID, line texts and clause texts at either indent', () => {
   const doc = parseDoc(`${SYNC}- 0001.3\r\n- not an acceptance\n# 0009 Second heading\n`);
   expect(doc.id).toBe('0001');
   expect(doc.name).toBe('Sync');
-  expect(doc.acceptances.map((a) => a.id)).toEqual(['0001.1', '0001.2', '0001.3']);
+  expect(doc.acceptances.map((a) => a.id)).toEqual(['0001.1', SECOND, '0001.3']);
   expect(doc.acceptances[1]).toEqual({
     givens: ['Writer has no network, and a full disk'],
-    id: '0001.2',
+    id: SECOND,
     line: 9,
     thens: ['the app warns'],
     whens: [EDIT],
   });
+  const nested = parseDoc(NESTED);
+  const unlined = (a) => ({ ...a, line: 0 });
+  expect(nested.acceptances.map(unlined)).toEqual(doc.acceptances.slice(0, 2).map(unlined));
+});
+
+test('0002.5 front matter adds no acceptance and a doc with no heading is named by its path', () => {
+  const nested = parseDoc(NESTED);
+  expect(nested.acceptances.map((a) => [a.id, a.line])).toEqual([
+    ['0001.1', 19],
+    [SECOND, 23],
+  ]);
   expect(parseDoc('- Given Writer before any acceptance\n')).toEqual({
     acceptances: [],
     id: null,
     name: null,
   });
-  const nested = parseDoc(NESTED);
-  expect(nested.acceptances.map((a) => a.line)).toEqual([19, 23]);
-  const unlined = (a) => ({ ...a, line: 0 });
-  expect(nested.acceptances.map(unlined)).toEqual(doc.acceptances.slice(0, 2).map(unlined));
   const bare = { ...parseDoc('- 0001.1\n'), path: 'docs/requirements/README.md', url: 'u' };
   expect(flatten([{ docs: [bare], repo: 'x' }])[0].doc).toBe(bare.path);
 });

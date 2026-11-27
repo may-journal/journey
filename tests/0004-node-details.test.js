@@ -10,7 +10,7 @@ const drawn = (page, key) => vi.waitFor(() => expect(nodeOf(page, key)).not.toBe
 const links = (li) => [...li.querySelectorAll('a')].map((a) => [a.textContent, a.href]);
 const items = (page) => page.ui.detailsList.querySelectorAll('li');
 
-test('0004.1 tapping a node lists its acceptances with doc and test links', async () => {
+test('0004.1 tapping a node lists its acceptances, each with a doc link and a test link', async () => {
   const page = openPage();
   await drawn(page, KEY.writer);
   tap(page, KEY.writer);
