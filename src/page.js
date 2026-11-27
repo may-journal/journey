@@ -17,6 +17,9 @@ import {
 export const TOKEN_KEY = 'journey.token';
 export const HIDDEN_KEY = 'journey.hiddenRepos';
 export const SELECTED = 'selected';
+export const MATCH = 'match';
+export const DIM = 'dim';
+const TERM = 'data-term';
 export const LINKS = { doc: 'Doc', test: 'Test' };
 const LIMIT = 6;
 // Mermaid names each node's group flowchart-<key>-<n>, after the SVG's own ID.
@@ -145,6 +148,25 @@ export function start({ fetchImpl, mermaid, window }) {
   };
 
   const draw = async () => {
+    await paint();
+    mark();
+  };
+
+  // Marks the drawn terms that contain the Find text and dims the others.
+  const mark = () => {
+    const text = ui.find.value.trim().toLowerCase();
+    const nodes = [...ui.diagram.querySelectorAll(NODES)];
+    let matches = 0;
+    for (const el of nodes) {
+      const hit = text !== '' && el.getAttribute(TERM).toLowerCase().includes(text);
+      matches += Number(hit);
+      el.classList.toggle(MATCH, hit);
+      el.classList.toggle(DIM, text !== '' && !hit);
+    }
+    ui.findNote.textContent = text ? `${matches} of ${nodes.length} drawn terms match.` : '';
+  };
+
+  const paint = async () => {
     const current = graph;
     if (!current.nodes.size) {
       ui.graphNote.textContent = '';
@@ -183,6 +205,7 @@ export function start({ fetchImpl, mermaid, window }) {
     for (const el of ui.diagram.querySelectorAll(NODES)) {
       const key = el.id.replace(NODE_ID, '$1');
       const node = current.nodes.get(key);
+      el.setAttribute(TERM, node.term);
       el.setAttribute('tabindex', '0');
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `${node.kind} ${node.term}, ${node.count} acceptances`);
@@ -248,6 +271,7 @@ export function start({ fetchImpl, mermaid, window }) {
   ui.forget.onclick = () => askToken('');
   ui.refresh.onclick = load;
   ui.group.onchange = rebuild;
+  ui.find.oninput = mark;
   for (const slider of [ui.cap, ui.min]) {
     slider.oninput = () => (ui[`${slider.id}Out`].textContent = slider.value);
     slider.onchange = draw;

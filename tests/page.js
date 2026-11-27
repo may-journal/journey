@@ -95,9 +95,16 @@ export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, 
  * Sets a slider and fires its input and change events, as dragging it does.
  */
 export function slide(page, slider, value) {
-  slider.value = String(value);
-  slider.dispatchEvent(new page.window.Event('input'));
+  typed(page, slider, value);
   changed(page, slider);
+}
+
+/**
+ * Sets a control's value and fires its input event, as typing in it does.
+ */
+export function typed(page, el, value) {
+  el.value = String(value);
+  el.dispatchEvent(new page.window.Event('input'));
 }
 
 /**
