@@ -17,6 +17,11 @@ import {
 export const TOKEN_KEY = 'journey.token';
 export const HIDDEN_KEY = 'journey.hiddenRepos';
 export const SELECTED = 'selected';
+export const MATCH = 'match';
+export const DIM = 'dim';
+const TERM = 'data-term';
+// Names of the view's parts in the address hash.
+export const SHARE = { find: 'find', hide: 'hide', show: 'show' };
 export const LINKS = { doc: 'Doc', test: 'Test' };
 const LIMIT = 6;
 // Mermaid names each node's group flowchart-<key>-<n>, after the SVG's own ID.
@@ -41,7 +46,11 @@ export function start({ fetchImpl, mermaid, window }) {
   const dark = window.matchMedia('(prefers-color-scheme: dark)');
   let token = localStorage.getItem(TOKEN_KEY);
   /** @type {Set<string>} Repos the viewer unchecked. */
-  const hidden = new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? '[]'));
+  const asked = new URLSearchParams(window.location.hash.slice(1));
+  // A link's repo choice wins over the saved one for this visit.
+  const hidden = new Set(asked.get(SHARE.hide)?.split(' ') ?? JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? '[]'));
+  if (Object.values(GROUP).includes(asked.get(SHARE.show))) ui.group.value = asked.get(SHARE.show);
+  ui.find.value = asked.get(SHARE.find) ?? '';
   let run = 0;
   let renders = 0;
   let acceptances = [];
@@ -131,7 +140,19 @@ export function start({ fetchImpl, mermaid, window }) {
     return label;
   };
 
+  // Keeps the view in the address hash, so a copied link opens the same view.
+  const share = () => {
+    const view = new URLSearchParams();
+    const find = ui.find.value.trim();
+    if (ui.group.value !== GROUP.both) view.set(SHARE.show, ui.group.value);
+    if (hidden.size) view.set(SHARE.hide, [...hidden].sort().join(' '));
+    if (find) view.set(SHARE.find, find);
+    const { pathname, search } = window.location;
+    window.history.replaceState(null, '', `${pathname}${search}${view.size ? `#${view}` : ''}`);
+  };
+
   const rebuild = async () => {
+    share();
     selected = null;
     ui.details.hidden = true;
     const group = ui.group.value;
@@ -145,6 +166,25 @@ export function start({ fetchImpl, mermaid, window }) {
   };
 
   const draw = async () => {
+    await paint();
+    mark();
+  };
+
+  // Marks the drawn terms that contain the Find text and dims the others.
+  const mark = () => {
+    const text = ui.find.value.trim().toLowerCase();
+    const nodes = [...ui.diagram.querySelectorAll(NODES)];
+    let matches = 0;
+    for (const el of nodes) {
+      const hit = text !== '' && el.getAttribute(TERM).toLowerCase().includes(text);
+      matches += Number(hit);
+      el.classList.toggle(MATCH, hit);
+      el.classList.toggle(DIM, text !== '' && !hit);
+    }
+    ui.findNote.textContent = text ? `${matches} of ${nodes.length} drawn terms match.` : '';
+  };
+
+  const paint = async () => {
     const current = graph;
     if (!current.nodes.size) {
       ui.graphNote.textContent = '';
@@ -183,6 +223,7 @@ export function start({ fetchImpl, mermaid, window }) {
     for (const el of ui.diagram.querySelectorAll(NODES)) {
       const key = el.id.replace(NODE_ID, '$1');
       const node = current.nodes.get(key);
+      el.setAttribute(TERM, node.term);
       el.setAttribute('tabindex', '0');
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', `${node.kind} ${node.term}, ${node.count} acceptances`);
@@ -248,6 +289,10 @@ export function start({ fetchImpl, mermaid, window }) {
   ui.forget.onclick = () => askToken('');
   ui.refresh.onclick = load;
   ui.group.onchange = rebuild;
+  ui.find.oninput = () => {
+    mark();
+    share();
+  };
   for (const slider of [ui.cap, ui.min]) {
     slider.oninput = () => (ui[`${slider.id}Out`].textContent = slider.value);
     slider.onchange = draw;

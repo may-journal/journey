@@ -10,6 +10,7 @@ const HTML = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const NODE = /^ {2}(\w+)[({[]+"(.+?)"[)}\]]+:::(\w+)$/;
 
 export const TOKEN = 'github_pat_test';
+export const URL_BASE = 'https://may-journal.github.io/journey/';
 export const APP = 'app';
 export const TOOLS = 'tools';
 export const EDIT = 'I edit an entry';
@@ -74,8 +75,15 @@ export function fakeMermaid() {
 /**
  * Opens the page with replayed GitHub answers and the fake Mermaid.
  */
-export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, stored = {}, token = TOKEN } = {}) {
-  const dom = new JSDOM(HTML, { url: 'https://may-journal.github.io/journey/' });
+export function openPage({
+  dark = false,
+  hash = '',
+  mermaid = fakeMermaid(),
+  routes = ORG,
+  stored = {},
+  token = TOKEN,
+} = {}) {
+  const dom = new JSDOM(HTML, { url: `${URL_BASE}${hash}` });
   const window = dom.window;
   if (token) window.localStorage.setItem(TOKEN_KEY, token);
   for (const [key, value] of Object.entries(stored)) window.localStorage.setItem(key, value);
@@ -95,9 +103,16 @@ export function openPage({ dark = false, mermaid = fakeMermaid(), routes = ORG, 
  * Sets a slider and fires its input and change events, as dragging it does.
  */
 export function slide(page, slider, value) {
-  slider.value = String(value);
-  slider.dispatchEvent(new page.window.Event('input'));
+  typed(page, slider, value);
   changed(page, slider);
+}
+
+/**
+ * Sets a control's value and fires its input event, as typing in it does.
+ */
+export function typed(page, el, value) {
+  el.value = String(value);
+  el.dispatchEvent(new page.window.Event('input'));
 }
 
 /**
