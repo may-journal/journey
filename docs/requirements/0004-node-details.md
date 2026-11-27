@@ -17,7 +17,9 @@ node taps
 1. Tap a node
    1. GIVEN Viewer sees the graph
       1. WHEN they tap a node
-         1. THEN it lists that node's acceptances with doc and test links
+         1. THEN it lists that node's acceptances
+         2. THEN each acceptance has a doc link
+         3. THEN each acceptance has a test link
 2. Keyboard
    1. GIVEN Viewer focuses a node with the keyboard
       1. WHEN they press Enter or Space
@@ -26,7 +28,8 @@ node taps
 3. Refresh
    1. GIVEN Viewer has the graph open
       1. WHEN they choose Refresh
-         1. THEN every repo is fetched again and the graph is rebuilt from the new docs
+         1. THEN every repo is fetched again
+         2. THEN the graph is rebuilt from the new docs
 4. Refresh during a load
    1. GIVEN Viewer chooses Refresh during a load
       1. WHEN both loads finish

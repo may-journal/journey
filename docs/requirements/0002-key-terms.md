@@ -19,20 +19,27 @@ clause parts in the fetched docs
    2. GIVEN with front matter
       1. WHEN the page reads it
          1. THEN each acceptance keeps its ID
-         2. THEN line and clause texts
-         3. THEN front matter adds none
-         4. THEN no heading means its path
+         2. THEN line texts
+         3. THEN clause texts
 2. Splits a clause
    1. GIVEN Viewer has a clause joined by commas or "and"
       1. WHEN the page splits it
-         1. THEN each part stands alone and code spans drop out
+         1. THEN each part stands alone
+         2. THEN code spans drop out
 3. Key term of a condition or result
-   1. GIVEN Viewer has a Given or Then clause
+   1. GIVEN Viewer has a condition or result clause
       1. WHEN the page reduces it
-         1. THEN its key term is the first word left after filler and pronouns
-         2. THEN kept as not-<term> after a "not"
+         1. THEN its key term is the first word left after filler words
+         2. THEN its key term skips pronouns
+         3. THEN it is kept as not-<term> after a "not"
 4. Key term of an action
-   1. GIVEN Viewer has a When clause
+   1. GIVEN Viewer has an action clause
       1. WHEN the page reduces it
          1. THEN its key term is the action verb
          2. THEN past a leading "the noun"
+5. Front matter and heading
+   1. GIVEN Viewer has a requirement doc with front matter
+   2. GIVEN a doc with no heading
+      1. WHEN the page reads it
+         1. THEN front matter adds no acceptance
+         2. THEN no heading means its path

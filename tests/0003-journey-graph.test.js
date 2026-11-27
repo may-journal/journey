@@ -17,7 +17,7 @@ const SAMPLE = [
   clauses('Guest has a pass-code', RUN, 'it passes'),
 ];
 
-test('0003.1 each key term is one node, and edges run Given to When to Then weighted by acceptance count', () => {
+test('0003.1 each key term is one node, and edges run from condition to action to result, weighted by acceptance count', () => {
   const graph = buildGraph(SAMPLE);
   expect([...graph.nodes.values()].map((n) => [n.key, n.count, n.acceptances])).toEqual([
     [KEY.developer, 2, [0, 1]],
@@ -76,7 +76,7 @@ test('0003.3 moving the sliders redraws the new selection, and too high a minimu
   expect(page.ui.diagram.textContent).toBe('No term has that many acceptances. Lower the minimum.');
 });
 
-test("0003.4 dark mode draws with Mermaid's dark theme and redraws when the mode changes", async () => {
+test("0003.4 dark mode draws with Mermaid's dark theme and redraws on a mode change", async () => {
   const page = openPage({ dark: true });
   await vi.waitFor(() => expect(page.mermaid.configs).toHaveLength(1));
   expect(page.mermaid.configs[0]).toMatchObject({ securityLevel: 'strict', startOnLoad: false, theme: THEME.dark });
